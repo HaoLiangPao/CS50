@@ -25,7 +25,7 @@ int main(void)
         // Left side pyramid
         for (int leftRepeat = 0; leftRepeat < repeatTimes; leftRepeat++) {
             // printf("%i\n", leftRepeat);
-            strcat(levelResult, "#");
+            strcat(levelResult, "#");   
         }
 
         printf("%s\n", levelResult);
