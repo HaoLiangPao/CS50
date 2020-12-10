@@ -135,7 +135,7 @@ void record_preferences(int ranks[])
             preferences[topCandidateIndex][preferCandidateIndex] += 1;
         }
     }
-    print_2D_array(preferences);
+    // print_2D_array(preferences);
     return;
 }
 
@@ -147,28 +147,32 @@ void add_pairs(void)
     {
         for (int pairCandidate = candidate + 1; pairCandidate < candidate_count; pairCandidate ++)
         {
-            // Initialize a new pair, and incrementing the pair_count by 1
-            pair newPair;
-            pair_count += 1;
-            // Compare preferences matrix to find out the winner among the two
-            if (preferences[candidate][pairCandidate] > preferences[pairCandidate][candidate])
+            // Dont add pairs when preferences are tied
+            if (preferences[candidate][pairCandidate] != preferences[pairCandidate][candidate])
             {
-                newPair.winner = candidate;
-                newPair.loser = pairCandidate;
-            }
-            else if (preferences[candidate][pairCandidate] < preferences[pairCandidate][candidate])
-            {
-                newPair.loser = candidate;
-                newPair.winner = pairCandidate;
-            }
-            // Find an empty storeage space for the new pair
-            for (int pairIndex = 0; pairIndex < pair_count; pairIndex ++)
-            {
-                if (pairs[pairIndex].winner == 0 && pairs[pairIndex].loser == 0)
+                // Initialize a new pair, and incrementing the pair_count by 1
+                pair newPair;
+                pair_count += 1;
+                // Compare preferences matrix to find out the winner among the two
+                if (preferences[candidate][pairCandidate] > preferences[pairCandidate][candidate])
                 {
-                    pairs[pairIndex] = newPair;
-                    printf("Pairs %i index is now a newPair (%i -> %i)\n", pairIndex, newPair.winner, newPair.loser);
-                    break;
+                    newPair.winner = candidate;
+                    newPair.loser = pairCandidate;
+                }
+                else if (preferences[candidate][pairCandidate] < preferences[pairCandidate][candidate])
+                {
+                    newPair.loser = candidate;
+                    newPair.winner = pairCandidate;
+                }
+                // Find an empty storeage space for the new pair
+                for (int pairIndex = 0; pairIndex < pair_count; pairIndex ++)
+                {
+                    if (pairs[pairIndex].winner == 0 && pairs[pairIndex].loser == 0)
+                    {
+                        pairs[pairIndex] = newPair;
+                        // printf("Pairs %i index is now a newPair (%i -> %i)\n", pairIndex, newPair.winner, newPair.loser);
+                        break;
+                    }
                 }
             }
         }
@@ -200,7 +204,7 @@ void sort_pairs(void)
         {
             pairs[pairIndex] = pairs[strongestIndex];
             pairs[strongestIndex] = currentPair;
-            printf("Pair %i(%i) swaped with pair %i(%i)\n", pairIndex, preferences[currentPair.winner][currentPair.loser], strongestIndex, strongest);
+            // printf("Pair %i(%i) swaped with pair %i(%i)\n", pairIndex, preferences[currentPair.winner][currentPair.loser], strongestIndex, strongest);
         }
     }
     return;
@@ -210,40 +214,61 @@ void sort_pairs(void)
 void lock_pairs(void)
 {
     // Avoid true been displayed on all three columns
-    int cycles[candidate_count] = {0};
+    int cycles[candidate_count];
+    memset(cycles, 0, candidate_count * sizeof(int));
 
     for (int pair_index = 0; pair_index < pair_count; pair_index ++)
     {
         pair currentPair = pairs[pair_index];
-        if (cycles[currentPair.loser] == 0)
+        // check if there is a cycle, only lock the edge when no cycle will be created
+        int count = 0;
+        for (int index = 0; index < candidate_count; index++)
+        {
+            count += cycles[index];
+        }
+        // all candidate can win another candidate if this pair been added, which means a cycle will be created
+        if ((count != candidate_count - 1) || (count == candidate_count - 1 && cycles[currentPair.loser] == 1))
         {
             locked[currentPair.winner][currentPair.loser] = true;
             cycles[currentPair.loser] = 1;
         }
     }
-    print_locked(locked);
+    // print_locked(locked);
     return;
 }
 
 // Print the winner of the election
 void print_winner(void)
 {
+    int largest = 0;
+    int largestIndex = 0;
     for (int index = 0; index < candidate_count; index ++)
     {
         int count = 0;
-        for (int otherCandidate = index + 1; otherCandidate < candidate_count; otherCandidate++)
+        for (int otherCandidate = 0; otherCandidate < candidate_count; otherCandidate++)
         {
             if (locked[index][otherCandidate] == true)
             {
                 count += 1;
             }
         }
+        // if a candidate wins all other candidates
         if (count == candidate_count - 1)
         {
             printf("%s\n", candidates[index]);
             return;
         }
+        // if some candidates are tied, get the candidate with the largest wins
+        else
+        {
+            if (count > largest)
+            {
+                largest = count;
+                largestIndex = index;
+            }
+        }
     }
+    printf("%s\n", candidates[largestIndex]);
     return;
 }
 
@@ -285,7 +310,7 @@ void print_locked(bool array[MAX][MAX])
             for(int j = 0; j < MAX; j++) {
                 if (array[j])
                 {
-                    printf("%s ", array[i][j] ? "true" : "false");
+                    printf("%s ", array[i][j] ? "true " : "false");
                 }
             }
             printf("\n");
