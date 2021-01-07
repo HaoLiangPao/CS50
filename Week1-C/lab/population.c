@@ -12,7 +12,7 @@ int main(void)
         // Prompt for start size
         startSize = get_int("Start size: ");
     }
-    while (startSize < 0);
+    while (startSize < 9);
 
     do
     {
@@ -22,15 +22,23 @@ int main(void)
     while (endSize < startSize);
 
     // Calculate number of years until we reach threshold
-    population = startSize;
-    do
+    // Special Case: same starting and ending size
+    if (startSize == endSize)
     {
-        population = population + population / 3 - population / 4;
-        years ++;
-
+        years = 0;
     }
-    while (population < endSize);
+    else
+    {
+        population = startSize;
+        do
+        {
+            population = population + population / 3 - population / 4;
+            years ++;
+
+        }
+        while (population < endSize);
+    }
 
     // Print number of years
-    printf("%i\n", years);
+    printf("Years: %i\n", years);
 }
