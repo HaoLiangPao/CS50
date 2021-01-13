@@ -33,32 +33,58 @@ int main(void)
     print_family(p, 0);
 
     // Free memory
-    free_family(p);
+    // free_family(p);
 }
 
 // Create a new individual with `generations`
 person *create_family(int generations)
 {
-    // TODO: Allocate memory for new person
+    // Allocate memory for new person
+    person *newPerson = malloc(sizeof(person));
 
     // Generation with parent data
     if (generations > 1)
     {
-        // TODO: Recursively create blood type histories for parents
+        // Recursively create blood type histories for parents
+        newPerson->parents[0] = create_family(generations - 1);
+        newPerson->parents[1] = create_family(generations - 1);
 
-        // TODO: Randomly assign child alleles based on parents
+        // Randomly assign child alleles based on parents
+        // * Assumming allels 0 from parent 0, alleles 1 from parent 1
+        int randomA = rand() % 2;
+        if (randomA == 0)
+        {
+            newPerson->alleles[0] = newPerson->parents[0]->alleles[0];
+        }
+        else
+        {
+            newPerson->alleles[0] = newPerson->parents[0]->alleles[1];
+        }
+        int randomB = rand() % 2;
+        if (randomB == 0)
+        {
+            newPerson->alleles[1] = newPerson->parents[1]->alleles[0];
+        }
+        else
+        {
+            newPerson->alleles[1] = newPerson->parents[1]->alleles[1];
+        }
     }
 
     // Generation without parent data
     else
     {
-        // TODO: Set parent pointers to NULL
+        // Set parent pointers to NULL
+        newPerson->parents[0] = NULL;
+        newPerson->parents[1] = NULL;
 
-        // TODO: Randomly assign alleles
+        // Randomly assign alleles
+        newPerson->alleles[0] = random_allele();
+        newPerson->alleles[1] = random_allele();
     }
 
-    // TODO: Return newly created person
-    return NULL;
+    // eturn newly created person
+    return newPerson;
 }
 
 // Free `p` and all ancestors of `p`.
