@@ -33,7 +33,7 @@ int main(void)
     print_family(p, 0);
 
     // Free memory
-    // free_family(p);
+    free_family(p);
 }
 
 // Create a new individual with `generations`
@@ -90,11 +90,17 @@ person *create_family(int generations)
 // Free `p` and all ancestors of `p`.
 void free_family(person *p)
 {
-    // TODO: Handle base case
+    if (p->parents[0] != NULL)
+    {
+        // Free parents
+        free_family(p->parents[0]);
+        free_family(p->parents[1]);
+    }
 
-    // TODO: Free parents
+    // Handle base case (same as free child process, when a person does not have any parents, free himself)
+    // Free child
+    free(p);
 
-    // TODO: Free child
 }
 
 // Print each family member and their alleles.
