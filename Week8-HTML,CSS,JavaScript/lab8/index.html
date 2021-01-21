@@ -1,42 +1,76 @@
 <!DOCTYPE html>
 
 <html lang="en">
-    <head>
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
-        <link href="styles.css" rel="stylesheet">
-        <title>Trivia!</title>
+	<head>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap"
+			rel="stylesheet"
+		/>
+		<link href="styles.css" rel="stylesheet" />
+		<title>Trivia!</title>
 
-        <script>
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+				// Part1
+				// Select questions and both correct/wrong questions
+				let correctAnswer = document.querySelector("#correct");
+				let wrongAnswer = document.querySelector("#wrong");
+				let message = document.querySelector("#message");
+				// 1. Change background color of buttons
+				// 2. Display messages indicating the correctness of the answer
+				correctAnswer.onclick = function () {
+					correctAnswer.style.backgroundColor = "green";
+					message.innerHTML = "Correct!";
+				};
+				wrongAnswer.onclick = function () {
+					wrongAnswer.style.backgroundColor = "red";
+					message.innerHTML = "Incorrect";
+				};
 
-            // TODO: Add code to check answers to questions
+				// Part2
+				let message2 = document.querySelector("#message2");
+				let input = document.querySelector("#input");
+				let submit = document.querySelector("#submit");
+				submit.onclick = function () {
+					if (input.value === "Canada") {
+						message2.innerHTML = "Correct!";
+					} else {
+						message2.innerHTML = "Incorrect";
+					}
+				};
+			});
+		</script>
+	</head>
+	<body>
+		<div class="jumbotron">
+			<h1>Trivia!</h1>
+		</div>
 
-        </script>
+		<div class="container">
+			<div class="section">
+				<h2>Part 1: Multiple Choice</h2>
+				<hr />
+				<h3>What is approximate ratio of people to sheep in New Zealand?</h3>
+				<p id="message"></p>
+				<!-- TODO: Add multiple choice question here -->
+				<button id="wrong">6 people per 1 sheep</button>
+				<button id="wrong">3 people per 1 sheep</button>
+				<button id="wrong">1 person per 1 sheep</button>
+				<button id="wrong">1 person per 3 sheep</button>
+				<button id="correct">1 person per 6 sheep</button>
+			</div>
 
-    </head>
-    <body>
-
-        <div class="jumbotron">
-            <h1>Trivia!</h1>
-        </div>
-
-        <div class="container">
-
-            <div class="section">
-                <h2>Part 1: Multiple Choice </h2>
-                <hr>
-
-                <!-- TODO: Add multiple choice question here -->
-
-            </div>
-
-            <div class="section">
-                <h2>Part 2: Free Response</h2>
-                <hr>
-
-                <!-- TODO: Add free response question here -->
-
-            </div>
-
-        </div>
-    </body>
+			<div class="section">
+				<h2>Part 2: Free Response</h2>
+				<hr />
+				<h3>
+					In which country is it illegal to own only one guinea pig, as a long
+					guinea pig might get lonely?
+				</h3>
+				<p id="message2"></p>
+				<input id="input" />
+				<button id="submit">Check Answer</button>
+			</div>
+		</div>
+	</body>
 </html>
