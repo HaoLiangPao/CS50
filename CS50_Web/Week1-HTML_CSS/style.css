@@ -1,0 +1,43 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400&display=swap");
+
+* {
+	box-sizing: border-box;
+	padding: 0;
+	margin: 0;
+}
+
+body {
+	font-family: "Open Sans", sans-serif;
+	background: #fff;
+	color: #333;
+	line-height: 1.6;
+}
+
+.top {
+	/* Outlook */
+	width: 20vw;
+	margin: 20px 35px 0 0;
+	background-color: beige;
+	/* Layout */
+	float: right;
+	display: flex;
+	flex-direction: row;
+}
+.top > .navbar {
+	/* Outlook */
+	padding: 5px 15px 5px 5px;
+	font-size: 20px;
+	/* Layout */
+	text-align: center;
+	align-items: center;
+	justify-content: center;
+}
+
+a {
+	/*  */
+	color: inherit;
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
