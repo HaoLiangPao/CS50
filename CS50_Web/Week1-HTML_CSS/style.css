@@ -13,12 +13,23 @@ body {
 	line-height: 1.6;
 }
 
+/* Containter */
+.container {
+	/* Size */
+	margin: 0 10px 0 10px;
+	/* Layout */
+	/* display: flex;
+	flex-direction: column; */
+}
+
+/* Top */
 .top {
 	/* Outlook */
 	width: 20vw;
 	margin: 20px 35px 0 0;
 	background-color: beige;
 	/* Layout */
+	right: 0;
 	float: right;
 	display: flex;
 	flex-direction: row;
@@ -32,7 +43,6 @@ body {
 	align-items: center;
 	justify-content: center;
 }
-
 a {
 	/*  */
 	color: inherit;
@@ -40,4 +50,79 @@ a {
 }
 a:hover {
 	text-decoration: underline;
+}
+
+/* Center */
+.center {
+	/* Layout */
+	text-align: center;
+	align-items: center;
+	justify-content: center;
+	display: flex;
+	flex-direction: column;
+	/* Size */
+	margin: 50px 30px 0 30px;
+	width: 90vw;
+	height: 50vh;
+}
+
+.searchBox {
+	/* Outlook */
+	height: 44px;
+	background-color: #fff;
+	border: 1px solid #dfe1e5;
+	box-shadow: none;
+	border-radius: 24px;
+	/* Layout */
+	z-index: 3;
+	margin: 30px auto;
+}
+.searchBox:hover {
+	box-shadow: 1px 1px 5px #dfe1e5;
+}
+
+.searchRow {
+	/* Layout */
+	display: flex;
+	flex: 1 1 0%;
+	padding: 10px 8px 0 16px;
+	padding-left: 14px;
+}
+
+.searchIconContainer {
+	margin: auto;
+}
+
+.searchIconContainer > .searchIcon {
+	/* Layout */
+	margin-top: 3px;
+	/* Outlook */
+	color: #9aa0a6;
+	height: 20px;
+	width: 20px;
+}
+
+form {
+	width: 487px;
+	/* Layout */
+	display: flex;
+	flex: 10 1 0%;
+	flex-direction: row;
+}
+.searchContext {
+	width: 70%;
+	margin: 5px 15px 0 15px;
+	/* Outlook */
+	background-color: transparent;
+	border: none;
+	outline: none;
+	-webkit-tap-highlight-color: transparent;
+	font-size: 16px;
+}
+
+/* Utilities */
+/* Clear right float span */
+span.rightClear {
+	clear: right;
+	display: block;
 }
