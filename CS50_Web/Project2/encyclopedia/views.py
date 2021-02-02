@@ -9,7 +9,18 @@ def index(request):
     })
 
 def entry(request, title):
-    return render(request, "encyclopedia/entry.html",{
-        "entry": util.get_entry(title)
-    })
+
+    # Convert Markdown String to HTML format
+    entry = util.get_entry(title)
+    print(entry)
+
+    # Normal WIKI Page
+    if entry:
+        return render(request, "encyclopedia/entry.html",{
+            "entry": entry
+        })
+    # Special Not Found Page
+    else:
+        return render(request, "encyclopedia/none.html")
+
 
