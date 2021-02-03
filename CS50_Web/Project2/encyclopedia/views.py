@@ -44,7 +44,7 @@ def search(request):
         if len(result) == 1:
             # @TODO: how to use reverse so no need to change the url everywhere
             # return HttpResponseRedirect(reverse("entry", args=(result[0]))
-            return HttpResponseRedirect(f"{result[0]}")
+            return HttpResponseRedirect(reverse("entry", args=(result[0],)))
         # More than one match / no match at all
         else:
             return render(request, "encyclopedia/searchResults.html", {
@@ -57,34 +57,49 @@ def create(request):
         # Get form input
         title = request.POST["title"]
         content = request.POST["content"]
-        if len(title) > 0 and len(content) > 0:
-            # Check if the entry exist
-            # Always get the most up to date entries
-            records = util.list_entries()
-            # Already exist
-            if title in records:
-                # @TODO: Error Message
-                print(f"{title} already exists")
-            else:
-                # Store new context into our database through util functions
-                util.save_entry(title, content)
-            # Redirect to the entry page
-            return HttpResponseRedirect(f"{title}")
+        # Create helper function 
+        createHelper(title, content)
+        # Redirect to the entry page
+        return HttpResponseRedirect(reverse("entry", args=(title,)))
     # Get method, go to the edit page
     return render(request, "encyclopedia/createEntry.html")
 
 def random(request):
     # Always get the most up to date entries
     records = util.list_entries()
-    return HttpResponseRedirect(f"{choice(records)}")
+    return HttpResponseRedirect(reverse("entry", args=(choice(records),)))
 
 def edit(request, title):
     # Submitting changes made to the entry
     if request.method == "POST":
-        print(f"POST")
+        content = request.POST["content"]
+        print(content)
+        # Create helper function
+        createHelper(title, content, True)
+        # Redirect to the entry page
+        return HttpResponseRedirect(reverse("entry", args=(title,)))
     entry = util.get_entry(title)
     # Default info page
     return render(request, "encyclopedia/editEntry.html",{
         "title": title,
         "entry": entry
     } )
+
+
+def createHelper(title, content, update=False):
+    print(update)
+    if len(title) > 0 and len(content) > 0:
+        # Check if the entry exist
+        # Always get the most up to date entries
+        records = util.list_entries()
+        # Already exist
+        if title in records:
+            # @TODO: Error Message
+            print(f"{title} already exists")
+
+            # User should be able to update the content when accessing through edit page
+            if update:
+                util.save_entry(title, content)
+        else:
+            # Store new context into our database through util functions
+            util.save_entry(title, content)
