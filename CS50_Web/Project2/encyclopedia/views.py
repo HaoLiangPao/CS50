@@ -45,3 +45,25 @@ def search(request):
             return render(request, "encyclopedia/searchResults.html", {
                 "matches": result
             })
+
+def create(request):
+    # When save button is clicked
+    if request.method == "POST":
+        # Get form input
+        title = request.POST["title"]
+        content = request.POST["content"]
+        if len(title) > 0 and len(content) > 0:
+            # Check if the entry exist
+            # Always get the most up to date entries
+            records = util.list_entries()
+            # Already exist
+            if title in records:
+                # @TODO: Error Message
+                print(f"{title} already exists")
+            else:
+                # Store new context into our database through util functions
+                util.save_entry(title, content)
+            # Redirect to the entry page
+            return HttpResponseRedirect(f"{title}")
+    # Get method, go to the edit page
+    return render(request, "encyclopedia/createEntry.html")

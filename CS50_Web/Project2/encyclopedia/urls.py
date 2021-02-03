@@ -8,8 +8,8 @@ urlpatterns = [
     # @TODO: why switching the order of defining search and entry solve the problem?
     # SearchResult Page
     path("wiki/search_result", views.search, name="search"),
+    # Add Page
+    path("wiki/createEntry", views.create, name="create"),
     # Entry Page
     path("wiki/<str:title>", views.entry, name="entry"),
-    # Add Page
-
 ]
