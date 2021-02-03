@@ -43,7 +43,7 @@ def search(request):
         # Exact match
         if len(result) == 1:
             # @TODO: how to use reverse so no need to change the url everywhere
-            # return HttpResponseRedirect(reverse("entry", result[0]))
+            # return HttpResponseRedirect(reverse("entry", args=(result[0]))
             return HttpResponseRedirect(f"{result[0]}")
         # More than one match / no match at all
         else:
@@ -77,3 +77,14 @@ def random(request):
     # Always get the most up to date entries
     records = util.list_entries()
     return HttpResponseRedirect(f"{choice(records)}")
+
+def edit(request, title):
+    # Submitting changes made to the entry
+    if request.method == "POST":
+        print(f"POST")
+    entry = util.get_entry(title)
+    # Default info page
+    return render(request, "encyclopedia/editEntry.html",{
+        "title": title,
+        "entry": entry
+    } )
