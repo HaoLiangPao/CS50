@@ -5,10 +5,7 @@
 {% endblock %}
 
 {% block body %}
-    <h1>{{title}}</h1>
 
-    <ul>
-        {{ entry }}
-    </ul>
+{{ entry|safe|escape }}
 
 {% endblock %}

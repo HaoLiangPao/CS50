@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect
 from . import util
 
 from random import choice
+from markdown2 import Markdown
 
 
 def index(request):
@@ -15,12 +16,14 @@ def index(request):
 def entry(request, title):
     # Convert Markdown String to HTML format
     entry = util.get_entry(title)
+    markdowner = Markdown()
+    converted = markdowner.convert(entry)
     print(f"Current entry is: {title}") # Log message
     # Normal WIKI Page
     if entry:
         return render(request, "encyclopedia/entry.html",{
             "title": title,
-            "entry": entry
+            "entry": converted
         })
     # Special Not Found Page
     else:
