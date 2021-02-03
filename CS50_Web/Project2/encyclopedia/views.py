@@ -1,3 +1,4 @@
+from django.urls import reverse
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 
@@ -24,26 +25,22 @@ def entry(request, title):
         return render(request, "encyclopedia/none.html")
 
 def search(request):
-    print(request.method)
-    print("Search view is running ...")
-    records = util.list_entries()
-    print(records)
     if request.method == "POST":
         # Get form input
         entry = request.POST["q"]
         # Always get the most up to date entries
         records = util.list_entries()
-        print(records)
         result = []
         for record in records:
             if entry in record:
                 result.append(record)
+        print(f"Result options are: {result}")
         # Exact match
         if len(result) == 1:
             # @TODO: how to use reverse so no need to change the url everywhere
             # return HttpResponseRedirect(reverse("entry", result[0]))
-            return HttpResponseRedirect(f"wiki/{result[0]}")
-        # More than one match
+            return HttpResponseRedirect(f"{result[0]}")
+        # More than one match / no match at all
         else:
             return render(request, "encyclopedia/searchResults.html", {
                 "matches": result
