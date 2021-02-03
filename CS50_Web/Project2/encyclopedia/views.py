@@ -4,6 +4,8 @@ from django.http import HttpResponseRedirect
 
 from . import util
 
+from random import choice
+
 
 def index(request):
     return render(request, "encyclopedia/index.html", {
@@ -67,3 +69,8 @@ def create(request):
             return HttpResponseRedirect(f"{title}")
     # Get method, go to the edit page
     return render(request, "encyclopedia/createEntry.html")
+
+def random(request):
+    # Always get the most up to date entries
+    records = util.list_entries()
+    return HttpResponseRedirect(f"{choice(records)}")

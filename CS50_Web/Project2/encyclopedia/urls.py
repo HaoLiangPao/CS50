@@ -10,6 +10,8 @@ urlpatterns = [
     path("wiki/search_result", views.search, name="search"),
     # Add Page
     path("wiki/createEntry", views.create, name="create"),
+    # Random Page
+    path("wiki/random", views.random, name="random"),
     # Entry Page
     path("wiki/<str:title>", views.entry, name="entry"),
 ]
