@@ -1,6 +1,5 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from datetime import datetime
 
 # A default generator for arrays
 def my_default():
