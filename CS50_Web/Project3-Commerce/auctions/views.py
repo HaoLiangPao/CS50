@@ -94,7 +94,7 @@ def create(request):
         if title and start_bid and description and image_url and time:
             # Create auction listing
             auction = Auction(title=title, description=description, start_bid=start_bid, image=image_url, created=time)
-            autction.save()
+            auction.save()
 
         # If missing value
         else:
