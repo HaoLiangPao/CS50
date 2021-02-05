@@ -26,14 +26,14 @@ class Auction(models.Model):
         return f"listing{self.id}: \ntitle({self.title})\n start_bid({self.start_bid}"
 
 
-class comment(models.Model):
+class Comment(models.Model):
     listing = models.IntegerField()
     content = models.TextField()
     def __str__(self):
         return f"comment{self.id}: \nlisting({self.listing})\n content({self.content}"
 
 
-class bid(models.Model):
+class Bid(models.Model):
     listing = models.IntegerField()
     new_bid = models.FloatField()
 
