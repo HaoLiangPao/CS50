@@ -3,6 +3,7 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from datetime import datetime
 
 from .models import User, Auction, Comment, Bid
 
@@ -74,9 +75,9 @@ def create(request):
     # When form is submitted
     if request.method == "POST":
         # Get form input
-        title = request.POST[title]
-        start_bid = request.POST[bid]
-        image_url = request.POST[image] if request.POST[image] else ""
+        title = request.POST["title"]
+        start_bid = request.POST["bid"]
+        image_url = request.POST["image"] if request.POST["image"] else ""
         description = request.POST[description]
         # Get created time
         # Create a date string with a certain standard
