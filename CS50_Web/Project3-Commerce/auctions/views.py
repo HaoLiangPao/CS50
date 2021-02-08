@@ -10,6 +10,28 @@ from datetime import datetime
 from .models import User, Auction, Comment, Bid
 
 def index(request):
+    # Get all active listing
+    try:
+        current_user = User.objects.get(id=request.user.id)
+        try:
+            auctions = Auction.objects.all()
+        except Auction.DoesNotExist:
+            print("No auctions.")
+        myAuctions = []
+        for auctionId in current_user.auctions:
+            try:
+                auction = Auction.objects.get(id=auctionId)
+                myAuctions.append(auction)
+            except Auction.DoesNotExist:
+                print(f"No auction with id({auctionId}) exists")
+        return render(request, "auctions/index.html", {
+            "auctions": auctions,
+           "myAuctions": myAuctions 
+        })
+    except User.DoesNotExist:
+        print(f"No user logged in")
+    
+
     return render(request, "auctions/index.html")
 
 

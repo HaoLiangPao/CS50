@@ -2,6 +2,51 @@
 
 {% block body %}
     <h2>Active Listings</h2>
+    <ul>
+        {% for auction in auctions %}
+            <li>
+                <ul>
+                    <li>
+                        <h1>
+                            <a href="/index">{{ auction.title }}</a>
+                        </h1>
+                    </li>
+                    <li>
+                        {{ auction.start_bid }}
+                    </li>
+                    <li>
+                        {{ auction.created }}
+                    </li>
+                </ul>
+                <img src="{{ auction.image }}" alt="Listing Image">
+                
+            </li>
+        {% endfor %}
+    </ul>
 
-    TODO
+    <hr />
+
+    <h2>My Listings</h2>
+    <ul>
+        {% for auction in myAuctions %}
+            <li>
+                <ul>
+                    <li>
+                        <h1>
+                            <a href="/index">{{ auction.title }}</a>
+                        </h1>
+                    </li>
+                    <li>
+                        {{ auction.start_bid }}
+                    </li>
+                    <li>
+                        {{ auction.created }}
+                    </li>
+                </ul>
+                <img src="{{ auction.image }}" alt="Listing Image">
+                
+            </li>
+        {% endfor %}
+    </ul>
+
 {% endblock %}
