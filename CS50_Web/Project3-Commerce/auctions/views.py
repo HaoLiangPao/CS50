@@ -32,8 +32,7 @@ def index(request):
         print(f"No user logged in")
     
 
-    return render(request, "auctions/index.html")
-
+    return render(request, "auctions/index.html", {"message": "Please login to see active listings..."})
 
 def login_view(request):
     if request.method == "POST":
@@ -140,6 +139,20 @@ def create(request):
             })
     # Normal case
     return render(request, "auctions/create.html")
+
+
+@login_required(redirect_field_name="my_redirect_field", login_url="/login")
+def listing(request, id):
+    try:
+        listing = Auction.objects.get(id=id)
+    except Auction.DoesNotExist:
+        print(f"Listing with id({id}) is not found.")
+        return render(request, "auctions/listing.html", {
+            "message": "Listing Not Found"
+        })
+    return render(request, "auctions/listing.html", {
+        "listing": listing
+    })
 
 
 # -- Helper functions --

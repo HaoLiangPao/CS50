@@ -1,0 +1,20 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    {% if message %}
+    <div>{{ message }}</div>
+    {% else %}
+        <h2>Listings {{ listing.title }}</h2>
+        <!-- Tag: (watchList) -->
+        <img src="{{ auction.image }}" alt="Listing Image">
+        <p>{{ listing.description }}</p>
+        <h3>$ {{ listing.first_bid }}</h3>
+        <p>2 bid(s) so far. Your bid is the current bid.</p>
+        <form action="{ url 'listing' % listing.id}" method="post" id="create_bid">
+            <input type="number" name="newBid" placeholder="New Bid">
+            <input type="submit" value="Place Bid">
+        </form>
+    {% endif %}
+
+{% endblock %}
