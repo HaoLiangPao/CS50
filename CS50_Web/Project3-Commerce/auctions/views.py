@@ -141,18 +141,33 @@ def create(request):
     return render(request, "auctions/create.html")
 
 
-@login_required(redirect_field_name="my_redirect_field", login_url="/login")
 def listing(request, id):
+    # User placing a new bid
+    if request.method == "POST":
+        newBid = request.POST["newBid"]
+        try:
+            # 1. Find the highest bid so far
+            
+            # 2. If no bid has been placed so far, get the starting bid
+            listing = Auction.objects.get(id=newBid)
+            startBid = listing.start_bid
+
     try:
         listing = Auction.objects.get(id=id)
+        # Show different content to logged in user and non-logged in user
+        loginStatus = True if request.user else False
+        return render(request, "auctions/listing.html", {
+            "listing": listing,
+            "login": loginStatus
+        })
     except Auction.DoesNotExist:
         print(f"Listing with id({id}) is not found.")
         return render(request, "auctions/listing.html", {
             "message": "Listing Not Found"
         })
-    return render(request, "auctions/listing.html", {
-        "listing": listing
-    })
+
+
+
 
 
 # -- Helper functions --

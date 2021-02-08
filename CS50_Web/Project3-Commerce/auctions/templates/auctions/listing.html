@@ -6,15 +6,19 @@
     <div>{{ message }}</div>
     {% else %}
         <h2>Listings {{ listing.title }}</h2>
-        <!-- Tag: (watchList) -->
+        {% if login %}
+            <!-- Tag: (watchList) -->
+        {% endif %}
         <img src="{{ auction.image }}" alt="Listing Image">
         <p>{{ listing.description }}</p>
         <h3>$ {{ listing.start_bid }}</h3>
-        <p>2 bid(s) so far. Your bid is the current bid.</p>
-        <form action="{ url 'listing' % listing.id}" method="post" id="create_bid">
-            <input type="number" name="newBid" placeholder="New Bid" class="form-group">
-            <input type="submit" value="Place Bid" class="btn btn-primary">
-        </form>
+        {% if login %}
+            <p>2 bid(s) so far. Your bid is the current bid.</p>
+            <form action="{ url 'listing' % listing.id}" method="post" id="create_bid">
+                <input type="number" name="newBid" placeholder="New Bid" class="form-group">
+                <input type="submit" value="Place Bid" class="btn btn-primary">
+            </form>
+        {% endif %}
         <h4>Details</h4>
         <ul>
             <li>Listed by: harry</li>
