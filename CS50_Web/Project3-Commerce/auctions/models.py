@@ -26,6 +26,8 @@ class Auction(models.Model):
 
 
 class Comment(models.Model):
+    # A user makes a comment on a listing
+    user = models.IntegerField()
     listing = models.IntegerField()
     content = models.TextField()
     def __str__(self):
@@ -33,6 +35,8 @@ class Comment(models.Model):
 
 
 class Bid(models.Model):
+    # a user place a new bid on a listing
+    user = models.IntegerField()
     listing = models.IntegerField()
     new_bid = models.FloatField()
 
