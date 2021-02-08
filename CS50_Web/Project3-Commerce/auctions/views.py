@@ -1,4 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
+# Private Routes middleware
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -6,7 +8,6 @@ from django.urls import reverse
 from datetime import datetime
 
 from .models import User, Auction, Comment, Bid
-
 
 def index(request):
     return render(request, "auctions/index.html")
@@ -71,14 +72,15 @@ def watchList(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
 
+@login_required(redirect_field_name="my_redirect_field", login_url="/login")
 def create(request):
     # When form is submitted
     if request.method == "POST":
         # Get form input
         title = request.POST["title"]
         start_bid = request.POST["bid"]
-        image_url = request.POST["image"] if request.POST["image"] else ""
-        description = request.POST[description]
+        image_url = request.POST["image"] if request.POST["image"] else " "
+        description = request.POST["description"]
         # Get created time
         # Create a date string with a certain standard
         now = datetime.now()
@@ -91,12 +93,24 @@ def create(request):
         else:
             end = "a.m."
         time = f"{month} {day}, {year}, {hour}:{minute} {end}"
+        print(time)
         # Check for missing value
         if title and start_bid and description and image_url and time:
             # Create auction listing
             auction = Auction(title=title, description=description, start_bid=start_bid, image=image_url, created=time)
+            # 1. Save it to the auction table
             auction.save()
-
+            # 2. Update user record
+            userId = request.user.id
+            print(userId)
+            current_user = User.objects.get(id=userId)
+            # Empty auction list
+            if current_user.auctions[0] == -1:
+                current_user.auctions[0] = auction.id
+            else:
+                current_user.auctions = current_user.auctions + [auction.id]
+            current_user.save()
+            return HttpResponseRedirect(reverse("index"))
         # If missing value
         else:
             return render(request, "auctions/create.html", {
