@@ -116,14 +116,18 @@ def shortest_path(source, target):
     # If no connection been found
     return None
 
+
+# Helper function: get a full path with given node
 def get_path(end):
     path = []
+    # Do not include start node within the path
     while end.parent:
         path.append((end.from_movie, end.person_id))
         end = end.parent
+    # Reverse the path since we append it starting from the end node
     path.reverse()
-    print(path)
     return path
+
 
 def person_id_for_name(name):
     """
