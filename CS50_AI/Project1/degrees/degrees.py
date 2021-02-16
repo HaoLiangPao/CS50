@@ -91,10 +91,39 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
+    explored = set()
+    # BFS
+    # Aalways check neighbors first
 
-    # TODO
-    raise NotImplementedError
+    # Source and targets are both valid since they passed the dataset validation
+    start = Node(person_id=source, from_movie=None, parent=None)
+    frontier = QueueFrontier()
+    frontier.add(start)
+    # Keep looking for until nothing in the frontier
+    while not frontier.empty():
+        node = frontier.remove()
+        neighbors = neighbors_for_person(node.person_id)
+        for neighbor in neighbors:
+            if neighbor[1] not in explored:
+                child = Node(person_id=neighbor[1], from_movie=neighbor[0], parent=node)
+                explored.add(neighbor[1])
+                # If found the target
+                if neighbor[1] == target:
+                    return get_path(child)
+                # If not, add neighbors to the frontier
+                else:
+                    frontier.add(child)
+    # If no connection been found
+    return None
 
+def get_path(end):
+    path = []
+    while end.parent:
+        path.append((end.from_movie, end.person_id))
+        end = end.parent
+    path.reverse()
+    print(path)
+    return path
 
 def person_id_for_name(name):
     """
