@@ -1,9 +1,11 @@
 class Node():
-    def __init__(self, state, parent, action):
-        self.state = state
+    def __init__(self, person_id, from_movie, parent):
+        # Current person_id
+        self.person_id = person_id
+        # Movie_id where the previous person and the current person acted together in
+        self.from_movie = from_movie
+        # Parent node
         self.parent = parent
-        self.action = action
-
 
 class StackFrontier():
     def __init__(self):
