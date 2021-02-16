@@ -57,6 +57,7 @@ while True:
         click, _, _ = pygame.mouse.get_pressed()
         if click == 1:
             mouse = pygame.mouse.get_pos()
+            # User choosing player (O or X)
             if playXButton.collidepoint(mouse):
                 time.sleep(0.2)
                 user = ttt.X
@@ -89,6 +90,7 @@ while True:
                 row.append(rect)
             tiles.append(row)
 
+        # Check if the game is over
         game_over = ttt.terminal(board)
         player = ttt.player(board)
 
