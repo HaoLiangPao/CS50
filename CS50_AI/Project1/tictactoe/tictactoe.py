@@ -142,7 +142,7 @@ def winner_one_spot(board, row, column):
     Check only from the given starting point, returns 1 if X has won
     the game, -1 if O has won, 0 otherwise.
     """
-    rules = [(0,1), (1,0), (1,1)]
+    rules = [(0,1), (1,0), (1,1), (1,-1)]
     for rule in rules:
         start = (row, column)
         # print(f"Starting from {start}")
@@ -153,7 +153,7 @@ def winner_one_spot(board, row, column):
             next = (start[0] + rule[0], start[1] + rule[1])
             # print(f"next is {next}")
             # Only check for valid winning combinations
-            if next[0] <= 2 and next[1] <= 2:
+            if 0 <= next[0] <= 2 and 0 <= next[1] <= 2:
                 if board[next[0]][next[1]] == "X":
                     X_count += 1
                 elif board[next[0]][next[1]] == "O":
@@ -188,10 +188,10 @@ def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    score, index = minimax_action_index(board)
-    print(f"index is {index}")
+    index = minimax_action_index(board)[1]
+    # print(f"index is {index}")
     possible_moves = list(actions(board))
-    print(f"possible_moves is {possible_moves}")
+    # print(f"possible_moves is {possible_moves}")
     return possible_moves[index]
 
 
@@ -208,24 +208,28 @@ def minimax_action_index(board):
     else:
         # Get current player (X is max player, O is min player)
         current_player = player(board)
-        print(f"current player is {current_player}")
+        # print(f"current player is {current_player}")
         # Get all possible actions from this state
         moves = list(actions(board))
-        print(f"list of moves is: {moves}")
+        # print(f"list of moves is: {moves}")
         scores = [0] * len(moves)
         for move_index in range(len(moves)):
             next_board = result(board, moves[move_index])
             scores[move_index] = minimax_action_index(next_board)[0]
         if current_player == X:
             optimal_score = max(scores)
-            print(f"Max Score is {scores}")
+            # print(f"Max Score is {scores}")
             return (optimal_score, scores.index(optimal_score))
         else:
             optimal_score = min(scores)
-            print(f"Min Score is {scores}")
+            # print(f"Min Score is {scores}")
             return (optimal_score, scores.index(optimal_score))
 
 
+# Testing boards
 # a = [[EMPTY, X, O], [O, X, EMPTY], [X, EMPTY, O]]
 # b = [[EMPTY, X, O], [O, X, X], [X, EMPTY, O]]
 # c = [[X, X, O], [X, O, EMPTY], [EMPTY, EMPTY, EMPTY]]
+d = [[X, X, O], [X, O, EMPTY], [EMPTY, EMPTY, EMPTY]]
+e = [[X, X, O], [X, O, EMPTY], [O, EMPTY, EMPTY]]
+
