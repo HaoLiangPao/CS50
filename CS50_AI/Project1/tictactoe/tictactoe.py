@@ -2,8 +2,8 @@
 Tic Tac Toe Player
 """
 
-import collections
 import math
+from copy import deepcopy
 from collections import deque
 
 X = "X"
@@ -42,9 +42,9 @@ def actions(board):
     Returns set of all possible actions (i, j) available on the board.
     """
     result = set()
-    for row in board:
-        for column in row:
-            if column == EMPTY:
+    for row in range(len(board)):
+        for column in range(len(board[0])):
+            if board[row][column] == EMPTY:
                 result.add((row, column))
     return result
 
@@ -53,7 +53,17 @@ def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
-    raise NotImplementedError
+    # Get current player
+    current_player = player(board)
+    result_board = deepcopy(board)
+    target_cell = result_board[action[0]][action[1]]
+    # Raise an error when trying to move on cells already occupied
+    if target_cell != EMPTY:
+        raise ValueError("Invalid move...")
+    # Take an action as the current player
+    else:
+        result_board[action[0]][action[1]] = current_player
+    return result_board
 
 
 def winner(board):
@@ -119,7 +129,7 @@ def terminal(board):
     else:
         for row in range(len(board)):
             for column in range(len(board[0])):
-                if board[row][column] is None:
+                if board[row][column] == EMPTY:
                     return False
         # All cells are occupied, game is terminated
         return True
