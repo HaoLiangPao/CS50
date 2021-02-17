@@ -87,7 +87,7 @@ def winner_dfs(board):
     # DFS
     frontier = deque()
     # Starting point
-    frontier.append((0,0,0,0))
+    frontier.append((0, 0, 0, 0))
     explored = set()
 
     while frontier:
@@ -100,7 +100,7 @@ def winner_dfs(board):
         elif board[c_row][c_column] == O:
             O_count += 1
         else:
-            break # check next cell in frontier, not possible to win
+            break  # check next cell in frontier, not possible to win
         # if winning
         if X_count == 3:
             return X
@@ -108,16 +108,17 @@ def winner_dfs(board):
             return O
         # Add neighbors into the frontier
         if (c_row, c_column + 1) not in explored:
-            horizontal  = (c_row, c_column + 1, X_count, O_count)
+            horizontal = (c_row, c_column + 1, X_count, O_count)
             frontier.append(horizontal)
         if (c_row + 1, c_column) not in explored:
-            vertical  = (c_row + 1, c_column, X_count, O_count)
+            vertical = (c_row + 1, c_column, X_count, O_count)
             frontier.append(vertical)
         if (c_row + 1, c_column + 1) not in explored:
-            diagonal  = (c_row + 1, c_column + 1, X_count, O_count)
+            diagonal = (c_row + 1, c_column + 1, X_count, O_count)
             frontier.append(diagonal)
     # No one wins the game
     return None
+
 
 def terminal(board):
     """
@@ -136,13 +137,12 @@ def terminal(board):
         return True
 
 
-
 def winner_one_spot(board, row, column):
     """
     Check only from the given starting point, returns 1 if X has won
     the game, -1 if O has won, 0 otherwise.
     """
-    rules = [(0,1), (1,0), (1,1), (1,-1)]
+    rules = [(0, 1), (1, 0), (1, 1), (1, -1)]
     for rule in rules:
         start = (row, column)
         # print(f"Starting from {start}")
@@ -179,7 +179,7 @@ def utility(board):
             # print(f"\nChecking {(row, column)} ...")
             check = winner_one_spot(board, row, column)
             if check != 0:
-               return check
+                return check
     # If no winner been detect after checkin all spots
     return 0
 
@@ -230,6 +230,6 @@ def minimax_action_index(board):
 # a = [[EMPTY, X, O], [O, X, EMPTY], [X, EMPTY, O]]
 # b = [[EMPTY, X, O], [O, X, X], [X, EMPTY, O]]
 # c = [[X, X, O], [X, O, EMPTY], [EMPTY, EMPTY, EMPTY]]
-d = [[X, X, O], [X, O, EMPTY], [EMPTY, EMPTY, EMPTY]]
-e = [[X, X, O], [X, O, EMPTY], [O, EMPTY, EMPTY]]
+# d = [[X, X, O], [X, O, EMPTY], [EMPTY, EMPTY, EMPTY]]
+# e = [[X, X, O], [X, O, EMPTY], [O, EMPTY, EMPTY]]
 
