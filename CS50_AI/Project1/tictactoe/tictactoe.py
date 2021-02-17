@@ -31,8 +31,9 @@ def player(board):
         for column in row:
             if column == X:
                 X_count += 1
-            else:
+            elif column == O:
                 O_count += 1
+    # print(f"X_count is {X_count}\nO_count is {O_count}")
     # Return the player with less moves
     return O if O_count < X_count else X
 
@@ -172,7 +173,6 @@ def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
-    print(len(board))
     # Start from every spot in the board, check if they match a line
     for row in range(len(board)):
         for column in range(len(board[0])):
@@ -188,14 +188,44 @@ def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    raise NotImplementedError
+    score, index = minimax_action_index(board)
+    print(f"index is {index}")
+    possible_moves = list(actions(board))
+    print(f"possible_moves is {possible_moves}")
+    return possible_moves[index]
 
 
+# Helper function
+def minimax_action_index(board):
+    """
+    Returns the optimal action_index for the current player on the board.
+    """
+    # Resursive algorithum
+    # Base Case: the board is terminated, return the final utility score
+    if terminal(board):
+        return (utility(board), -1)
+    # Normal Case: recursively making moves and sum the utility scores
+    else:
+        # Get current player (X is max player, O is min player)
+        current_player = player(board)
+        print(f"current player is {current_player}")
+        # Get all possible actions from this state
+        moves = list(actions(board))
+        print(f"list of moves is: {moves}")
+        scores = [0] * len(moves)
+        for move_index in range(len(moves)):
+            next_board = result(board, moves[move_index])
+            scores[move_index] = minimax_action_index(next_board)[0]
+        if current_player == X:
+            optimal_score = max(scores)
+            print(f"Max Score is {scores}")
+            return (optimal_score, scores.index(optimal_score))
+        else:
+            optimal_score = min(scores)
+            print(f"Min Score is {scores}")
+            return (optimal_score, scores.index(optimal_score))
 
-# a = initial_state()
-# a = [["X", "X", "X"], [None, None, None], [None, None, None]]
-a = [["X", "X", "O"], [EMPTY, EMPTY, "O"], [EMPTY, EMPTY, "O"]]
-player(a)
-# winner(a)
-terminal(a)
-utility(a)
+
+# a = [[EMPTY, X, O], [O, X, EMPTY], [X, EMPTY, O]]
+# b = [[EMPTY, X, O], [O, X, X], [X, EMPTY, O]]
+# c = [[X, X, O], [X, O, EMPTY], [EMPTY, EMPTY, EMPTY]]
