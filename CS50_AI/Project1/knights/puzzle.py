@@ -29,8 +29,8 @@ CPerson = And(
 knowledge0 = And(
     APerson,
     # Puzzle 0 (Translation)
-    Implication(AKnight, And(AKnight, AKnave)), # Knight says truth
-    Implication(AKnave, Not(And(AKnight, AKnave))) # Knave says lies
+    Implication(AKnight, And(AKnight, AKnave)),  # Knight says truth
+    Implication(AKnave, Not(And(AKnight, AKnave)))  # Knave says lies
 )
 
 # Puzzle 1
@@ -69,19 +69,19 @@ knowledge3 = And(
 
     # 2, 3
     Implication(BKnight,
-        And(
-            Implication(AKnight, BKnave),
-            Implication(AKnave, Not(BKnave)),
-            CKnave
-        )
-    ),
+                And(
+                    Implication(AKnight, BKnave),
+                    Implication(AKnave, Not(BKnave)),
+                    CKnave
+                )
+                ),
     Implication(BKnave,
-        And(
-            Implication(AKnight, Not(BKnave)),
-            Implication(AKnave, Not(Not(BKnave))),
-            Not(CKnave)
-        )
-    ),
+                And(
+                    Implication(AKnight, Not(BKnave)),
+                    Implication(AKnave, Not(Not(BKnave))),
+                    Not(CKnave)
+                )
+                ),
     # 3
     Implication(CKnight, AKnight),
     Implication(CKnave, Not(AKnight))
