@@ -1,4 +1,3 @@
-from CS50_AI.Project1.knights.logic import And, Implication, Not, Or, Sentence, Symbol
 from logic import *
 
 AKnight = Symbol("A is a Knight")
@@ -13,28 +12,25 @@ CKnave = Symbol("C is a Knave")
 # Common Sense1: A person can only be either a knight or a knave
 APerson = And(
     Or(AKnight, AKnave),
-    Not(AKnight, AKnave)
+    Not(And(AKnight, AKnave))
 )
 BPerson = And(
     Or(BKnight, BKnave),
-    Not(BKnight, BKnave)
+    Not(And(BKnight, BKnave))
 )
 CPerson = And(
     Or(CKnight, CKnave),
-    Not(CKnight, CKnave)
+    Not(And(CKnight, CKnave))
 )
 # Common Sence2: A knight always says truth, A knave always says lies
-Truth = Implication(AKnight, )
-
-# Knight speaks true statement, 
-
 
 # Puzzle 0
 # A says "I am both a knight and a knave."
 knowledge0 = And(
-
+    APerson,
     # Puzzle 0 (Translation)
-    Implication(AKnight, And(AKnight, AKnave))
+    Implication(AKnight, And(AKnight, AKnave)), # Knight says truth
+    Implication(AKnave, Not(And(AKnight, AKnave))) # Knave says lies
 )
 
 # Puzzle 1
@@ -71,10 +67,12 @@ def main():
     ]
     for puzzle, knowledge in puzzles:
         print(puzzle)
+        # print(f"Kowledge Base: {knowledge.formula()}\n")
         if len(knowledge.conjuncts) == 0:
             print("    Not yet implemented.")
         else:
             for symbol in symbols:
+                # print(symbol)
                 if model_check(knowledge, symbol):
                     print(f"    {symbol}")
 
