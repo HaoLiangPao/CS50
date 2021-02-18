@@ -53,7 +53,7 @@ knowledge2 = And(
     Implication(AKnight, Or(And(AKnight, BKnight), And(AKnave, BKnave))),
     Implication(AKnave, Not(Or(And(AKnight, BKnight), And(AKnave, BKnave)))),
     Implication(BKnight, Not(Or(And(AKnight, BKnight), And(AKnave, BKnave)))),
-    Implication(BKnave, (Or(And(AKnight, BKnight), And(AKnave, BKnave)))),
+    Implication(BKnave, Not(Not((Or(And(AKnight, BKnight), And(AKnave, BKnave)))))),
 )
 
 # Puzzle 3
@@ -62,7 +62,30 @@ knowledge2 = And(
 # B says "C is a knave."
 # C says "A is a knight."
 knowledge3 = And(
-    # TODO
+    APerson,
+    BPerson,
+    CPerson,
+    # 1
+
+    # 2, 3
+    Implication(BKnight,
+        And(
+            Implication(AKnight, BKnave),
+            Implication(AKnave, Not(BKnave)),
+            CKnave
+        )
+    ),
+    Implication(BKnave,
+        And(
+            Implication(AKnight, Not(BKnave)),
+            Implication(AKnave, Not(Not(BKnave))),
+            Not(CKnave)
+        )
+    ),
+    # 3
+    Implication(CKnight, AKnight),
+    Implication(CKnave, Not(AKnight))
+
 )
 
 
