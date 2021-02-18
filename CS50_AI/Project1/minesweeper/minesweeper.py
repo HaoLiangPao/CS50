@@ -195,9 +195,22 @@ class MinesweeperAI():
         self.moves_made.add(cell)
         # Mark the cell as safe
         self.safes.add(cell)
-        # Add a new sentence to the AI's KB based on the value of `cell` and `count`
-        new_knowledge = Sentence(cell, count)
-        self.knowledge.add(new_knowledge)
+        # Add a new sentence to the AI's KB based on the value of `cell` and `count`\
+        inference = set()
+        c_row, c_column = cell
+        # Add all nearby cells into the inference
+        for row in range(c_row - 1, c_row + 1):
+            # Not exceeding the game board limit
+            if 0 <= row <= self.height - 1:
+                for column in range(c_column - 1, c_column + 1):
+                    # Not exceeding the game board limit
+                    if 0 <= row <= self.width - 1:
+                        neighbor = (row, column)
+                        # Why only include undertermined cells?
+                        inference.add(neighbor)
+        # Add the inference with the number of mines into a sentence
+        new_knowledge = Sentence(inference, count)
+        self.knowledge.append(new_knowledge)
         # @TODO Mark any additional cells as safe or as mines if it can be concluded based on the AI's knowledge base
 
         # @TODO Add any new sentences to the AI's knowledge base if they can be inferred from existing knowledge
@@ -216,9 +229,10 @@ class MinesweeperAI():
         for row in range(self.height):
             for column in range(self.width):
                 move = (row, column)
-                if (move not in self.moves_made) and (move not in self.mines) and (move in self.saves):
+                if (move not in self.moves_made) and (move not in self.mines) and (move in self.safes):
                     print(f"Save move been took: {move}")
                     return move
+        return None
 
     def make_random_move(self):
         """
@@ -233,3 +247,4 @@ class MinesweeperAI():
                 if move not in self.moves_made and move not in self.mines:
                     print(f"Random move been took: {move}")
                     return move
+        return None
