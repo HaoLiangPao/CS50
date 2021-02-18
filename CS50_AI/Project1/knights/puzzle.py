@@ -37,7 +37,11 @@ knowledge0 = And(
 # A says "We are both knaves."
 # B says nothing.
 knowledge1 = And(
-    # TODO
+    APerson,
+    BPerson,
+    # Puzzel 1 translates
+    Implication(AKnave, Not(And(AKnave, BKnave))),
+    Implication(AKnight, And(AKnave, BKnave))
 )
 
 # Puzzle 2
