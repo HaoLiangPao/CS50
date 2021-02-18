@@ -1,4 +1,4 @@
-from logic import *
+from logic import Implication, And, Or, Symbol, Not, model_check
 
 AKnight = Symbol("A is a Knight")
 AKnave = Symbol("A is a Knave")
@@ -48,7 +48,12 @@ knowledge1 = And(
 # A says "We are the same kind."
 # B says "We are of different kinds."
 knowledge2 = And(
-    # TODO
+    APerson,
+    BPerson,
+    Implication(AKnight, Or(And(AKnight, BKnight), And(AKnave, BKnave))),
+    Implication(AKnave, Not(Or(And(AKnight, BKnight), And(AKnave, BKnave)))),
+    Implication(BKnight, Not(Or(And(AKnight, BKnight), And(AKnave, BKnave)))),
+    Implication(BKnave, (Or(And(AKnight, BKnight), And(AKnave, BKnave)))),
 )
 
 # Puzzle 3
