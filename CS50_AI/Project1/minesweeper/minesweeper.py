@@ -107,13 +107,17 @@ class Sentence():
         """
         Returns the set of all cells in self.cells known to be mines.
         """
-        raise NotImplementedError
+        # Can only garentee mines when all cells in the set are mines
+        if len(self.cells) == self.count:
+            return self.cells
 
     def known_safes(self):
         """
         Returns the set of all cells in self.cells known to be safe.
         """
-        raise NotImplementedError
+        # Can only garentee safe cells when the count is 0
+        if self.count == 0:
+            return self.cells
 
     def mark_mine(self, cell):
         """
@@ -193,8 +197,9 @@ class MinesweeperAI():
         """
         # Mark the cell as a move that has been made
         self.moves_made.add(cell)
-        # Mark the cell as safe
-        self.safes.add(cell)
+        # 1. Mark the cell as safe
+        # 2. Update existing knowledge the current cell is safe
+        self.mark_safe(cell)
         # Add a new sentence to the AI's KB based on the value of `cell` and `count`\
         inference = set()
         c_row, c_column = cell
@@ -206,16 +211,54 @@ class MinesweeperAI():
                     # Not exceeding the game board limit
                     if 0 <= row <= self.width - 1:
                         neighbor = (row, column)
-                        # Why only include undertermined cells?
-                        inference.add(neighbor)
+                        # Only add undetermined cells
+                        if neighbor not in self.moves_made:
+                            inference.add(neighbor)
         # Add the inference with the number of mines into a sentence
         new_knowledge = Sentence(inference, count)
         self.knowledge.append(new_knowledge)
-        # @TODO Mark any additional cells as safe or as mines if it can be concluded based on the AI's knowledge base
-
-        # @TODO Add any new sentences to the AI's knowledge base if they can be inferred from existing knowledge
-
+        # Mark any additional cells as safe or as mines if it can be concluded based on the AI's knowledge base
+        for knowledge_base in self.knowledge:
+            # Check if there are any conclusions can be made already
+            know_mines = knowledge_base.known_mines()
+            know_safes = knowledge_base.know_safes()
+            if know_mines:
+                for cell in know_mines:
+                    self.mark_mine(cell)
+            if know_safes:
+                for cell in know_safes:
+                    self.mark_safe(cell)
+            # Add any new sentences to the AI's knowledge base if they can be inferred from existing knowledge
+            # Check if one inference is a subset of the other
+            if knowledge_base.issubset(new_knowledge):
+                # new_knowledge is bigger, what ever left in new_knowledge except the overlap can be drived into a new sentence
+                different_cells = new_knowledge.difference(knowledge_base)
+                different_count = new_knowledge.count - knowledge_base.count
+            elif new_knowledge.issubset(knowledge_base):
+                # Similar idea, but this time knowledge_base is bigger
+                different_cells = knowledge_base.difference(new_knowledge)
+                different_count = knowledge_base.count - new_knowledge.count
+            derived_knowledge = Sentence(different_cells, different_count)
+            # If there are new knowledge to be added
+            if derived_knowledge:
+                self.knowledge.append(new_knowledge) # Changing the iterative while iterating it? could it be a flau?
         print(new_knowledge)
+
+
+    def generate_knowledge(self, new_knowledge):
+        """
+        Derived possible new knowledge based on knowledge base we captured so far
+        """
+        for knowledge_base in self.knowledge:
+            # Check if one inference is a subset of the other
+            if knowledge_base.issubset(new_knowledge):
+                different_cells = new_knowledge.difference(knowledge_base)
+                different_count = new_knowledge.count - knowledge_base.count
+            elif new_knowledge.issubset(knowledge_base):
+                different_cells = knowledge_base.difference(new_knowledge)
+                different_count = knowledge_base.count - new_knowledge.count
+            derived_knowledge = Sentence(different_cells, different_count)
+            
 
     def make_safe_move(self):
         """
