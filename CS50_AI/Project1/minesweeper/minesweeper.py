@@ -229,15 +229,17 @@ class MinesweeperAI():
                 for cell in know_safes:
                     self.mark_safe(cell)
             # Add any new sentences to the AI's knowledge base if they can be inferred from existing knowledge
+            kb_cells, new_cells = knowledge_base.cells, new_knowledge.cells
+            kb_count, new_count = knowledge_base.count, new_knowledge.count
             # Check if one inference is a subset of the other
-            if knowledge_base.issubset(new_knowledge):
-                # new_knowledge is bigger, what ever left in new_knowledge except the overlap can be drived into a new sentence
-                different_cells = new_knowledge.difference(knowledge_base)
-                different_count = new_knowledge.count - knowledge_base.count
-            elif new_knowledge.issubset(knowledge_base):
+            if kb_cells.issubset(new_cells):
+                # new_cells is bigger, what ever left in new_cells except the overlap can be drived into a new sentence
+                different_cells = new_cells.difference(kb_cells)
+                different_count = new_count - kb_count
+            elif new_cells.issubset(kb_cells):
                 # Similar idea, but this time knowledge_base is bigger
-                different_cells = knowledge_base.difference(new_knowledge)
-                different_count = knowledge_base.count - new_knowledge.count
+                different_cells = kb_cells.difference(new_cells)
+                different_count = kb_count - new_count
             derived_knowledge = Sentence(different_cells, different_count)
             # If there are new knowledge to be added
             if derived_knowledge:
