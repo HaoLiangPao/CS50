@@ -204,12 +204,12 @@ class MinesweeperAI():
         inference = set()
         c_row, c_column = cell
         # Add all nearby cells into the inference
-        for row in range(c_row - 1, c_row + 1):
+        for row in range(c_row - 1, c_row + 2):
             # Not exceeding the game board limit
             if 0 <= row <= self.height - 1:
-                for column in range(c_column - 1, c_column + 1):
+                for column in range(c_column - 1, c_column + 2):
                     # Not exceeding the game board limit
-                    if 0 <= row <= self.width - 1:
+                    if 0 <= column <= self.width - 1:
                         neighbor = (row, column)
                         # Only add undetermined cells
                         if neighbor not in self.moves_made:
@@ -218,19 +218,36 @@ class MinesweeperAI():
         new_knowledge = Sentence(inference, count)
         self.knowledge.append(new_knowledge)
         # Mark any additional cells as safe or as mines if it can be concluded based on the AI's knowledge base
+
+        # print(f"Moves made are: {self.moves_made}")
+        # print(f"knowledge base is: {self.knowledge}")
+        
         for knowledge_base in self.knowledge:
             # Check if there are any conclusions can be made already
             know_mines = knowledge_base.known_mines()
-            know_safes = knowledge_base.know_safes()
+            know_safes = knowledge_base.known_safes()
+            # print(f"Know safes are {know_safes}")
+            # print(f"Know mines are {know_mines}")
             if know_mines:
+                # Copy the set since the original return result may be changed by mark functions
+                know_mines = know_mines.copy()
                 for cell in know_mines:
+                    print(f"Cell {cell} is a mine")
                     self.mark_mine(cell)
             if know_safes:
+                # Copy the set since the original return result may be changed by mark functions
+                know_safes = know_safes.copy()
                 for cell in know_safes:
+                    print(f"Cell {cell} is safe")
                     self.mark_safe(cell)
+            # print(f"safe cells are: {self.safes}")
+            # print(f"mines are: {self.mines}")
+        current_knowledge = self.knowledge.copy()
+        for knowledge_base in current_knowledge:
             # Add any new sentences to the AI's knowledge base if they can be inferred from existing knowledge
             kb_cells, new_cells = knowledge_base.cells, new_knowledge.cells
             kb_count, new_count = knowledge_base.count, new_knowledge.count
+            different_cells = set()
             # Check if one inference is a subset of the other
             if kb_cells.issubset(new_cells):
                 # new_cells is bigger, what ever left in new_cells except the overlap can be drived into a new sentence
@@ -240,11 +257,12 @@ class MinesweeperAI():
                 # Similar idea, but this time knowledge_base is bigger
                 different_cells = kb_cells.difference(new_cells)
                 different_count = kb_count - new_count
-            derived_knowledge = Sentence(different_cells, different_count)
             # If there are new knowledge to be added
-            if derived_knowledge:
-                self.knowledge.append(new_knowledge) # Changing the iterative while iterating it? could it be a flau?
+            if different_cells:
+                derived_knowledge = Sentence(different_cells, different_count)
+                self.knowledge.append(derived_knowledge) # Changing the iterative while iterating it? could it be a flau?
         print(new_knowledge)
+        print("\n")
 
 
     def generate_knowledge(self, new_knowledge):
