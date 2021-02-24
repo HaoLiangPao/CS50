@@ -221,7 +221,8 @@ class MinesweeperAI():
 
         # print(f"Moves made are: {self.moves_made}")
         # print(f"knowledge base is: {self.knowledge}")
-        
+        # Temperary storage for used knowledges
+        used_knowledge = []
         for knowledge_base in self.knowledge:
             # Check if there are any conclusions can be made already
             know_mines = knowledge_base.known_mines()
@@ -232,16 +233,27 @@ class MinesweeperAI():
                 # Copy the set since the original return result may be changed by mark functions
                 know_mines = know_mines.copy()
                 for cell in know_mines:
-                    print(f"Cell {cell} is a mine")
+                    # print(f"Cell {cell} is a mine")
                     self.mark_mine(cell)
+                used_knowledge.append(knowledge_base)
+                # print(f"used knowledge mine: {knowledge_base.cells}={knowledge_base.count}")
             if know_safes:
                 # Copy the set since the original return result may be changed by mark functions
                 know_safes = know_safes.copy()
                 for cell in know_safes:
-                    print(f"Cell {cell} is safe")
+                    # print(f"Cell {cell} is safe")
                     self.mark_safe(cell)
-            # print(f"safe cells are: {self.safes}")
-            # print(f"mines are: {self.mines}")
+                used_knowledge.append(knowledge_base)
+                # print(f"used knowledge mine: {knowledge_base.cells}={knowledge_base.count}")
+            # # If the set is empty, also remove it from the knowledge base
+            # if len(knowledge_base.cells) == 0:
+            #     used_knowledge.append(knowledge_base)
+        # Remove the knowledge since it is already applied on other exisitng knowleges 
+        # print(f"used knowledge: {len(used_knowledge)}")
+        for knowledge in used_knowledge:
+            # print(f"(before) knowledge is {len(self.knowledge)}")
+            self.knowledge.remove(knowledge)
+            # print(f"(after) knowledge is {len(self.knowledge)}")
         current_knowledge = self.knowledge.copy()
         for knowledge_base in current_knowledge:
             # Add any new sentences to the AI's knowledge base if they can be inferred from existing knowledge
@@ -258,27 +270,24 @@ class MinesweeperAI():
                 different_cells = kb_cells.difference(new_cells)
                 different_count = kb_count - new_count
             # If there are new knowledge to be added
-            if different_cells:
+                # Only add non-existing knowledge
+            if different_cells and not self.check_duplicate_knowledge(different_cells):
                 derived_knowledge = Sentence(different_cells, different_count)
-                self.knowledge.append(derived_knowledge) # Changing the iterative while iterating it? could it be a flau?
-        print(new_knowledge)
-        print("\n")
-
-
-    def generate_knowledge(self, new_knowledge):
-        """
-        Derived possible new knowledge based on knowledge base we captured so far
-        """
-        for knowledge_base in self.knowledge:
-            # Check if one inference is a subset of the other
-            if knowledge_base.issubset(new_knowledge):
-                different_cells = new_knowledge.difference(knowledge_base)
-                different_count = new_knowledge.count - knowledge_base.count
-            elif new_knowledge.issubset(knowledge_base):
-                different_cells = knowledge_base.difference(new_knowledge)
-                different_count = knowledge_base.count - new_knowledge.count
-            derived_knowledge = Sentence(different_cells, different_count)
-            
+                # print(f"knowledge not existing, adding new knowlege {different_cells}, {different_count}")
+                # Changing the iterative while iterating it? could it be a flau?
+                self.knowledge.append(derived_knowledge) 
+        # print(f"new_knowledge is {new_knowledge.cells}={new_knowledge.count}")
+        # print(f"Knowledge base is: {len(self.knowledge)}")
+        # for knowledge_base in self.knowledge:
+            # print(knowledge_base)
+        # print("\n")
+    
+    
+    def check_duplicate_knowledge(self, cells):
+        for base in self.knowledge:
+            if cells == base.cells:
+                return True
+        return False
 
     def make_safe_move(self):
         """
