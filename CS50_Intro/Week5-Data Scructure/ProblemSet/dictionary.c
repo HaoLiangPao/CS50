@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #include "dictionary.h"
 
@@ -32,8 +33,16 @@ bool check(const char *word)
 // Hashes word to a number
 unsigned int hash(const char *word)
 {
-    // TODO
-    return 0;
+    // Hash the string into an integer
+    unsigned int hash_value = 0;
+    for (int index = 0; index < strlen(word); index++ )
+    {
+        // Create a somewhat very different sum of all characters
+        hash_value += toupper(word[index]);
+    }
+    // Add it to a bucket within the hashtable
+    hash_value = hash_value % N;
+    return hash_value;
 }
 
 // Loads dictionary into memory, returning true if successful, else false
@@ -78,19 +87,27 @@ bool load(const char *dictionary)
 // Returns number of words in dictionary if loaded, else 0 if not yet loaded
 unsigned int size(void)
 {
-    unsigned int count = 0;
-    // Loop through the hashtable
-    for (int index = 0; index < N; index++)
+    // Return 0 if the file is not loaded
+    if (dict == NULL)
     {
-        // Get access to the head of the bucket
-        node *head = table[index];
-        while (head != NULL)
-        {
-            count ++;
-            head = head->next;
-        }
+        return 0;
     }
-    return count;
+    else
+    {
+        unsigned int size = 0;
+        // Loop through the hashtable
+        for (int index = 0; index < N; index++)
+        {
+            // Get access to the head of the bucket
+            node *head = table[index];
+            while (head != NULL)
+            {
+                size ++;
+                head = head->next;
+            }
+        }
+        return size;
+    }
 }
 
 // Unloads dictionary from memory, returning true if successful, else false
