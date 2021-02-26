@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <stdio.h>
 #include <ctype.h>
 
@@ -17,7 +18,7 @@ typedef struct node
 node;
 
 // Number of buckets in hash table
-const unsigned int N = 26;
+const unsigned int N = 1000;
 
 // Hash table
 node *table[N];
@@ -26,7 +27,21 @@ FILE *dict;
 // Returns true if word is in dictionary, else false
 bool check(const char *word)
 {
-    // TODO
+    // Get the hash for the word
+    unsigned int hash_value = hash(word);
+    // Loop through the linked list (bucket) for the actual word
+    node *head = table[hash_value];
+    while (head != NULL)
+    {
+        if (strcasecmp(word, head->word) == 0)
+        {
+            return true;
+        }
+        else
+        {
+            head = head->next;
+        }
+    }
     return false;
 }
 
@@ -78,7 +93,7 @@ bool load(const char *dictionary)
         // Insert the node at the beginning of the linked-list
         new_node->next = table[hash_value];
         table[hash_value] = new_node;
-        printf("%s\n", word);
+        // printf("%s\n", word);
     }
 
     return true;
