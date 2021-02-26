@@ -78,8 +78,19 @@ bool load(const char *dictionary)
 // Returns number of words in dictionary if loaded, else 0 if not yet loaded
 unsigned int size(void)
 {
-    // TODO
-    return 0;
+    unsigned int count = 0;
+    // Loop through the hashtable
+    for (int index = 0; index < N; index++)
+    {
+        // Get access to the head of the bucket
+        node *head = table[index];
+        while (head != NULL)
+        {
+            count ++;
+            head = head->next;
+        }
+    }
+    return count;
 }
 
 // Unloads dictionary from memory, returning true if successful, else false
@@ -90,10 +101,10 @@ bool unload(void)
     {
         // Get access to the head of each bucket
         node *head = table[index];
-        while (head->next != NULL)
+        while (head != NULL)
         {
             // Keep the address of the current node
-            node *temp = head->next;
+            node *temp = head;
             head = temp->next;
             // Free the node we just accessed
             free(temp);
