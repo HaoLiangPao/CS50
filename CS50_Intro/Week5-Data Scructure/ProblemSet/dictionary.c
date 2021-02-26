@@ -50,7 +50,7 @@ unsigned int hash(const char *word)
 {
     // Hash the string into an integer
     unsigned int hash_value = 0;
-    for (int index = 0; index < strlen(word); index++ )
+    for (int index = 0; index < strlen(word); index++)
     {
         // Create a somewhat very different sum of all characters
         hash_value += toupper(word[index]);
