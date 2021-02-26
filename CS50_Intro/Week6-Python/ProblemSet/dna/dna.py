@@ -15,9 +15,15 @@ def load_data(database):
         for row in reader:
             people[row["name"]] = {
                 "AGATC": int(row["AGATC"]),
-                "AATG": int(row["AATG"]),
-                "TATC": int(row["TATC"])
+                "TTTTTTCT": int(row["TTTTTTCT"]),
+                "TCTAG": int(row["TCTAG"]),
+                "GATA": int(row["GATA"]),
+                "GAAA": int(row["GAAA"]),
+                "TCTG": int(row["TCTG"]),
+                "TATC": int(row["TATC"]),
+                "AATG": int(row["AATG"])
             }
+
 
 def main():
     # Flag for compare result
@@ -25,7 +31,7 @@ def main():
 
     if len(sys.argv) > 3 or len(sys.argv) < 2:
         sys.exit("Usage: python dna.py [database.csv] [testing.txt]")
-    database = sys.argv[1] if len(sys.argv) == 2 else "databases/small.csv"
+    database = sys.argv[1]
     testing = sys.argv[2]
 
     # Load data from files into memory
@@ -37,23 +43,41 @@ def main():
     f = open(testing, "r")
     sequence = f.readline()
     # Searching for STRs
-    STRs = ["AGATC", "AATG", "TATC"]
-    counts = [0, 0, 0]
+    counts = {
+        "AGATC" : 0,
+        "TTTTTTCT" : 0,
+        "AATG" : 0,
+        "TCTAG" : 0,
+        "GATA" : 0,
+        "TATC" : 0,
+        "GAAA" : 0,
+        "TCTG" : 0
+    }
     for index in range(len(sequence)):
-        if sequence[index : index + 5] == STRs[0]:
-            counts[0] += 1
-        elif sequence[index : index + 4] == STRs[1]:
-            counts[1] += 1
-        elif sequence[index : index + 4] == STRs[2]:
-            counts[2] += 1
+        four = sequence[index : index + 4]
+        five = sequence[index : index + 5]
+        eight = sequence[index : index + 8]
+        if five in counts:
+            counts[five] += 1
+        if four in counts:
+            counts[four] += 1
+        if eight in counts:
+            counts[eight] += 1
     # Comparing with the database records
     for person in people.keys():
         record = people[person]
-        if ((record["AGATC"] == counts[0]) and
-         (record["AATG"] == counts[1]) and
-         (record["TATC"] == counts[2])):
-           found = True
-           print(person)
+        count = 0
+        # Compare all counts statistics with records
+        for STR in counts.keys():
+            if counts[STR] == record[STR]:
+                count += 1
+                # Set a confidential threashold to 3
+                if count >= 3:
+                    found = True
+                    print(person)
+
+    print(people)
+    print(counts)
     if not found:
         print("No match")
 
