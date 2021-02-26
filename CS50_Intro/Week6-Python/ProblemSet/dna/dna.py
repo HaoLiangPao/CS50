@@ -13,17 +13,44 @@ def load_data(database):
     with open(database, encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            people[row["name"]] = {
-                "AGATC": int(row["AGATC"]),
-                "TTTTTTCT": int(row["TTTTTTCT"]),
-                "TCTAG": int(row["TCTAG"]),
-                "GATA": int(row["GATA"]),
-                "GAAA": int(row["GAAA"]),
-                "TCTG": int(row["TCTG"]),
-                "TATC": int(row["TATC"]),
-                "AATG": int(row["AATG"])
-            }
+            if database == "databases/small.csv":
+                people[row["name"]] = {
+                    "AGATC": int(row["AGATC"]),
+                    "TATC": int(row["TATC"]),
+                    "AATG": int(row["AATG"])
+                }
+            else:
+                people[row["name"]] = {
+                    "AGATC": int(row["AGATC"]),
+                    "TATC": int(row["TATC"]),
+                    "AATG": int(row["AATG"]),
+                    "TTTTTTCT": int(row["TTTTTTCT"]),
+                    "TCTAG": int(row["TCTAG"]),
+                    "GATA": int(row["GATA"]),
+                    "GAAA": int(row["GAAA"]),
+                    "TCTG": int(row["TCTG"]),
+                }
 
+
+def findConsecutivePattern(source, target):
+    count, longest = 0, -1
+    left, right, consecutive = 0, len(target), False
+    while left < len(source) and right < len(source):
+        # When a pattern found
+        if source[left: right] == target:
+            if consecutive == False:
+                consecutive = True
+            count += 1
+            left, right = right, right + len(target)
+        else:
+            consecutive = False
+            # A longer consecutinve sequence is found
+            if count > longest:
+                # Update the max and reset the count
+                longest, count = count, 0
+            # Check next index
+            left, right = left + 1, right + 1
+    return longest
 
 def main():
     # Flag for compare result
@@ -43,26 +70,28 @@ def main():
     f = open(testing, "r")
     sequence = f.readline()
     # Searching for STRs
-    counts = {
-        "AGATC" : 0,
-        "TTTTTTCT" : 0,
-        "AATG" : 0,
-        "TCTAG" : 0,
-        "GATA" : 0,
-        "TATC" : 0,
-        "GAAA" : 0,
-        "TCTG" : 0
-    }
-    for index in range(len(sequence)):
-        four = sequence[index : index + 4]
-        five = sequence[index : index + 5]
-        eight = sequence[index : index + 8]
-        if five in counts:
-            counts[five] += 1
-        if four in counts:
-            counts[four] += 1
-        if eight in counts:
-            counts[eight] += 1
+    if database == "databases/small.csv":
+        counts = {
+            "AGATC" : 0,
+            "AATG" : 0,
+            "TATC" : 0,
+        }
+    else:
+        counts = {
+            "AGATC" : 0,
+            "AATG" : 0,
+            "TATC" : 0,
+            "TTTTTTCT" : 0,
+            "TCTAG" : 0,
+            "GATA" : 0,
+            "GAAA" : 0,
+            "TCTG" : 0
+        }
+
+    # Count the longest consecutive STR patterns
+    for STR in counts:
+        counts[STR] = findConsecutivePattern(sequence, STR)
+
     # Comparing with the database records
     for person in people.keys():
         record = people[person]
@@ -71,13 +100,15 @@ def main():
         for STR in counts.keys():
             if counts[STR] == record[STR]:
                 count += 1
-                # Set a confidential threashold to 3
+                # Set a confidential threashold to 2
                 if count >= 3:
                     found = True
                     print(person)
-
-    print(people)
-    print(counts)
+                    break
+    # print(counts)
+    # print(people["Charlie"])
+    # print(people["Ron"])
+    # print(people["Ginny"])
     if not found:
         print("No match")
 
