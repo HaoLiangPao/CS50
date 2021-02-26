@@ -1,6 +1,8 @@
 // Implements a dictionary's functionality
 
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 
 #include "dictionary.h"
@@ -52,11 +54,25 @@ bool load(const char *dictionary)
     // Not reaching the end of the dictionary
     while (fscanf(dict, "%s", word) != EOF)
     {
+        // Create a new node to be added
+        node *new_node = malloc(sizeof(node));
+        // When no empty memory exists
+        if (new_node == NULL)
+        {
+            printf("No memory, failed to load the dictionary.\n");
+            unload();
+            return false;
+        }
+        // Create a hash value
+        hash_value = hash(word);
+        strcpy(new_node->word, word);
+        // Insert the node at the beginning of the linked-list
+        new_node->next = table[hash_value];
+        table[hash_value] = new_node;
         printf("%s\n", word);
     }
 
-
-    return false;
+    return true;
 }
 
 // Returns number of words in dictionary if loaded, else 0 if not yet loaded
@@ -69,6 +85,19 @@ unsigned int size(void)
 // Unloads dictionary from memory, returning true if successful, else false
 bool unload(void)
 {
-    // TODO
-    return false;
+    // Remove all nodes stored in the hashtable
+    for (int index = 0; index < N; index++)
+    {
+        // Get access to the head of each bucket
+        node *head = table[index];
+        while (head->next != NULL)
+        {
+            // Keep the address of the current node
+            node *temp = head->next;
+            head = temp->next;
+            // Free the node we just accessed
+            free(temp);
+        }
+    }
+    return true;
 }
