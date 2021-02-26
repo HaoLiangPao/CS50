@@ -8,12 +8,12 @@ while not (0 <= change):
     # Reject invalid inputs
     if (user_input.isnumeric() or "." in user_input):
         change = float(user_input)
-int_change = int(change * 100)
-# Greedy Algorithum
-coins = [0.25, 0.10, 0.05, 0.01]
+change = int(change * 100)
+# Greedy Algorithum (every coin is multiplited by 100 and turned into an integer)
+coins = [25, 10, 5, 1]
 count = 0
 while change > 0:
-    print(f"Change before: {change}")
+    # print(f"Change before: {change}")
     if change >= coins[0]:
         change -= coins[0]
     elif coins[1] <= change < coins[0]:
@@ -23,5 +23,5 @@ while change > 0:
     else:
         change -= coins[3]
     count += 1
-    print(f"Change now: {change}")
+    # print(f"Change now: {change}")
 print(f"{count}\n")
