@@ -1,0 +1,19 @@
+body {
+	padding-top: 10%;
+	background-color: honeydew;
+	padding-left: 20%;
+	padding-right: 20%;
+}
+
+#welcome {
+	margin-top: 5%;
+	align-items: center;
+	text-align: center;
+	color: gray;
+}
+
+#index_pic {
+	height: 40%;
+	width: 40%;
+	margin-bottom: 50px;
+}
