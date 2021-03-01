@@ -35,22 +35,25 @@ def load_data(database):
 def findConsecutivePattern(source, target):
     count, longest = 0, -1
     left, right, consecutive = 0, len(target), False
-    while left < len(source) and right < len(source):
+    while left < len(source) and right <= len(source):
         # When a pattern found
         if source[left: right] == target:
             if consecutive == False:
                 consecutive = True
             count += 1
+            # print(f"Consecutive found: {left}, {right}; count is {count}")
             left, right = right, right + len(target)
         else:
             consecutive = False
             # A longer consecutinve sequence is found
             if count > longest:
-                # Update the max and reset the count
-                longest, count = count, 0
-            # Check next index
-            left, right = left + 1, right + 1
+                # Update the max 
+                longest = count
+                # print(f"Consecutive Stop found: {left}, {right}; count is {count}; longest is {longest}")
+            # Check next index and reset the count
+            left, right, count = left + 1, right + 1, 0
     return longest
+
 
 def main():
     # Flag for compare result
@@ -72,20 +75,20 @@ def main():
     # Searching for STRs
     if database == "databases/small.csv":
         counts = {
-            "AGATC" : 0,
-            "AATG" : 0,
-            "TATC" : 0,
+            "AGATC": 0,
+            "AATG": 0,
+            "TATC": 0,
         }
     else:
         counts = {
-            "AGATC" : 0,
-            "AATG" : 0,
-            "TATC" : 0,
-            "TTTTTTCT" : 0,
-            "TCTAG" : 0,
-            "GATA" : 0,
-            "GAAA" : 0,
-            "TCTG" : 0
+            "AGATC": 0,
+            "AATG": 0,
+            "TATC": 0,
+            "TTTTTTCT": 0,
+            "TCTAG": 0,
+            "GATA": 0,
+            "GAAA": 0,
+            "TCTG": 0
         }
 
     # Count the longest consecutive STR patterns
@@ -108,6 +111,7 @@ def main():
     # print(counts)
     # print(people["Charlie"])
     # print(people["Ron"])
+    # print(people["Lavender"])
     # print(people["Ginny"])
     if not found:
         print("No match")
