@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Index
+{% endblock %}
+
+{% block main %}
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Symbol</th>
+            <th scope="col">Name</th>
+            <th scope="col">Shares</th>
+            <th scope="col">Price</th>
+            <th scope="col">Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for stock in stocks %}
+            <tr>
+                <th scope="row">{{stock["symbol"]}}</th>
+                <td>{{stock["name"]}}</td>
+                <td>{{stock["shares"]}}</td>
+                <td>{{stock["price"]}}</td>
+                <td>{{stock["total"]}}</td>
+            </tr>
+        {% endfor %}
+        <!-- Last row, a sum of all stocks owned -->
+        <tr>
+            <th scope="row"></th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="font-weight-bold">{{total}}</td>
+        </tr>
+        </tbody>
+    </table>
+{% endblock %}

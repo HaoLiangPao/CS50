@@ -46,7 +46,30 @@ if not os.environ.get("API_KEY"):
 @login_required
 def index():
     """Show portfolio of stocks"""
-    return apology("TODO")
+    # Get all stock purchased by the current user
+    stocks = db.execute("SELECT stock_symbol AS symbol, SUM(shares) AS shares FROM user_stock WHERE user_id = ? GROUP BY stock_symbol", session["user_id"])
+    # Whole record of shares
+    result = []
+    # Do a special treatment for each stock purchased from
+    for stock in stocks:
+        update = lookup(stock["symbol"])
+        shares = stock["shares"]
+        price = update["price"]
+        name = update["name"]
+        result.append({
+            "symbol": stock["symbol"],
+            "name": name,
+            "shares": shares,
+            "price": usd(price),
+            "total": usd(price * shares),
+            "numerical_total": price * shares
+        })
+    # Calculating the total wealth for the current user
+    total = 0.0
+    for stock in result:
+        total += stock["numerical_total"]
+    # Render template
+    return render_template("index.html", stocks=result, total=usd(total))
 
 
 @app.route("/buy", methods=["GET", "POST"])
@@ -82,10 +105,11 @@ def buy():
         # 1. Update users, deduct cost from cash
         db.execute("UPDATE users SET cash = ? WHERE id = ?", record[0]["cash"] - cost, session["user_id"])
         # 2. Update user_stock, add transactions to it
-        db.execute("INSERT INTO user_stock (user_id, stock_symbol, price) VALUES (?,?,?)",
+        db.execute("INSERT INTO user_stock (user_id, stock_symbol, price, shares) VALUES (?,?,?,?)",
             session["user_id"],
             symbol,
-            stock["price"]
+            stock["price"],
+            shares
             )
         # Redirect to quote with GET method to display the lookup result
         return redirect("/")
