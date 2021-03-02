@@ -244,7 +244,42 @@ def register():
 @login_required
 def sell():
     """Sell shares of stock"""
-    return apology("TODO")
+
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+        shares_selling = request.form.get("shares")
+        symbol_select = request.form.get("symbolSelect")
+        # Ensure a valid symbol is selected
+        if symbol_select == "Sell...":
+            return apology("must select a symbol to sell", 403)
+        # Ensure a valid number of shares entered
+        elif not shares_selling:
+            return apology("must provide #shares", 403)
+        # Ensure enough shares the current user owned
+        stock_owned = db.execute("SELECT SUM(shares) AS shares FROM user_stock WHERE user_id = ? WHERE stock_symbol= ? GROUP BY stock_symbol",
+         session["user_id"],
+         symbol_select)
+        if stock_owned < shares_selling:
+            return apology("you dont have enough shares", 403)
+        
+        # Start selling process
+        current_stock = lookup(symbol_select)
+        # 1. Add money to user's cash
+        db.execute("UPDATE users SET cash = ? WHERE id = ?",
+                    shares_selling * current_stock["price"],
+                    session["user_id"])
+        # 2. Add a transaction into user_stock with a negative shares value
+        db.execute("INSERT INTO user_stock (user_id, stock_symbol, price, shares) VALUES (?,?,?,?)",
+            session["user_id"],
+            current_stock["symbol"],
+            current_stock["price"],
+            -shares_selling)
+    else:
+        # Get all shares the current user have
+        stock_owned = db.execute("SELECT stock_symbol AS symbols SUM(shares) AS shares FROM user_stock WHERE user_id = ? GROUP BY stock_symbol", session["user_id"])
+        # Render a sell form
+        return render_template("sell.html", stocks=stock_owned["symbols"])
+        
 
 
 def errorhandler(e):
