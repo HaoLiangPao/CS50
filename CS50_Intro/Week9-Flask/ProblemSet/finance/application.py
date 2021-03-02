@@ -114,7 +114,23 @@ def logout():
 @login_required
 def quote():
     """Get stock quote."""
-    return apology("TODO")
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+
+        # Ensure a stock symbol is entered
+        if not request.form.get("symbol"):
+            return apology("must provide symbol", 403)
+
+        # Make API calls to check current price for this stock
+        stock = lookup(request.form.get("symbol"))
+        stock["price"] = usd(stock["price"])
+
+        # Redirect to quote with GET method to display the lookup result
+        return render_template("quote.html", stock=stock)
+
+
+    else:
+        return render_template("quote.html")
 
 
 @app.route("/register", methods=["GET", "POST"])
