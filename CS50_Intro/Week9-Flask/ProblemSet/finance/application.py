@@ -52,8 +52,47 @@ def index():
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
 def buy():
-    """Buy shares of stock"""
-    return apology("TODO")
+    """Get stock quote."""
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+
+        symbol, shares = request.form.get("symbol"), int(request.form.get("shares"))
+
+        # Ensure a stock symbol is entered
+        if not symbol:
+            return apology("must provide symbol", 403)
+
+        # Ensure a number of shares is entered
+        elif not shares:
+            return apology("must provide shares", 403)
+
+        elif shares:
+            if shares <= 0:
+                return apology("#shares must bigger than 0", 403)
+
+        # Check if enough cash under the user account
+        record = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
+        stock = lookup(symbol)
+        cost = shares * stock["price"]
+        # Do not approve the purchase when not enough money
+        if record[0]["cash"] < cost:
+            return apology("you can't afford", 403)
+
+        # Record the purchase within the database
+        # 1. Update users, deduct cost from cash
+        db.execute("UPDATE users SET cash = ? WHERE id = ?", record[0]["cash"] - cost, session["user_id"])
+        # 2. Update user_stock, add transactions to it
+        db.execute("INSERT INTO user_stock (user_id, stock_symbol, price) VALUES (?,?,?)",
+            session["user_id"],
+            symbol,
+            stock["price"]
+            )
+        # Redirect to quote with GET method to display the lookup result
+        return redirect("/")
+
+    # Render the quote form
+    else:
+        return render_template("buy.html")
 
 
 @app.route("/history")
@@ -128,7 +167,7 @@ def quote():
         # Redirect to quote with GET method to display the lookup result
         return render_template("quote.html", stock=stock)
 
-
+    # Render the quote form
     else:
         return render_template("quote.html")
 
