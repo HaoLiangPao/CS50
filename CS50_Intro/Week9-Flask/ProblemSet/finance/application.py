@@ -134,27 +134,24 @@ def register():
         # Ensure password was submitted
         elif not request.form.get("password"):
             return apology("must provide password", 403)
-        
+
         # Ensure password was confirmed
         elif not request.form.get("confirmation"):
             return apology("must confirm password", 403)
 
         # Ensure password and the confirmed password matching
-        elif request.form.get("password") == request.form.get("confirmation"):
+        elif request.form.get("password") != request.form.get("confirmation"):
             return apology("password and confirmation have to match", 403)
 
 
         # User inputs are correct, register the user
-        row = db.execute("INSERT INTO users (username, hash, cash) VALUES (?, ?, ?)",
-         request.form.get("username",
+        user_id = db.execute("INSERT INTO users (username, hash, cash) VALUES (?, ?, ?)",
+         request.form.get("username"),
          generate_password_hash(request.form.get("password")),
-         0.0))
+         0.0)
 
-        # # Query database for username
-        # rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
-
-        # # Auto logged in the user and remember which user has logged in
-        # session["user_id"] = rows[0]["id"]
+        # Auto logged in the user and remember which user has logged in
+        session["user_id"] = user_id
 
         # Redirect user to home page
         return redirect("/")
