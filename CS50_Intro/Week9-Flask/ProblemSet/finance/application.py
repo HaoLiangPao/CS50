@@ -107,7 +107,7 @@ def buy():
         # 2. Update user_stock, add transactions to it
         db.execute("INSERT INTO user_stock (user_id, stock_symbol, price, shares) VALUES (?,?,?,?)",
             session["user_id"],
-            symbol,
+            stock["symbol"],
             stock["price"],
             shares
             )
