@@ -47,7 +47,8 @@ if not os.environ.get("API_KEY"):
 def index():
     """Show portfolio of stocks"""
     # Get all stock purchased by the current user
-    stocks = db.execute("SELECT stock_symbol AS symbol, SUM(shares) AS shares FROM user_stock WHERE user_id = ? GROUP BY stock_symbol", session["user_id"])
+    stocks = db.execute(
+        "SELECT stock_symbol AS symbol, SUM(shares) AS shares FROM user_stock WHERE user_id = ? GROUP BY stock_symbol", session["user_id"])
     # Whole record of shares
     result = []
     # Do a special treatment for each stock purchased from
@@ -96,7 +97,7 @@ def buy():
 
         # Ensure a number larger than 0 is entered as #shares
         elif int(shares) <= 0:
-                return apology("#shares must bigger than 0", 400)
+            return apology("#shares must bigger than 0", 400)
 
         # Check if enough cash under the user account
         record = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
@@ -115,11 +116,11 @@ def buy():
         db.execute("UPDATE users SET cash = ? WHERE id = ?", record[0]["cash"] - cost, session["user_id"])
         # 2. Update user_stock, add transactions to it
         db.execute("INSERT INTO user_stock (user_id, stock_symbol, price, shares) VALUES (?,?,?,?)",
-            session["user_id"],
-            stock["symbol"],
-            stock["price"],
-            shares
-            )
+                   session["user_id"],
+                   stock["symbol"],
+                   stock["price"],
+                   shares
+                   )
         # Redirect to quote with GET method to display the lookup result
         return redirect("/")
 
@@ -134,7 +135,7 @@ def history():
     """Show history of transactions"""
     # Get all transaction records under the current user
     transactions = db.execute("SELECT stock_symbol, shares, price, time FROM user_stock WHERE user_id = ?",
-                               session["user_id"])
+                              session["user_id"])
     # Render history template with all transactions listed
     return render_template("history.html", records=transactions)
 
@@ -239,12 +240,11 @@ def register():
         elif request.form.get("password") != request.form.get("confirmation"):
             return apology("password and confirmation have to match", 400)
 
-
         # User inputs are correct, register the user
         user_id = db.execute("INSERT INTO users (username, hash, cash) VALUES (?, ?, ?)",
-         request.form.get("username"),
-         generate_password_hash(request.form.get("password")),
-         0.0)
+                             request.form.get("username"),
+                             generate_password_hash(request.form.get("password")),
+                             0.0)
 
         # Auto logged in the user and remember which user has logged in
         session["user_id"] = user_id
@@ -274,11 +274,8 @@ def sell():
             return apology("must provide #shares", 400)
         # Ensure enough shares the current user owned
         stock_owned = db.execute("SELECT SUM(shares) AS shares FROM user_stock WHERE user_id = ? AND stock_symbol= ? GROUP BY stock_symbol",
-         session["user_id"],
-         symbol_select)
-        print(session["user_id"])
-        print(symbol_select)
-        print(stock_owned)
+                                 session["user_id"],
+                                 symbol_select)
         if stock_owned[0]["shares"] < shares_selling:
             return apology("you dont have enough shares", 400)
 
@@ -286,22 +283,22 @@ def sell():
         current_stock = lookup(symbol_select)
         # 1. Add money to user's cash
         db.execute("UPDATE users SET cash = ? WHERE id = ?",
-                    shares_selling * current_stock["price"],
-                    session["user_id"])
+                   shares_selling * current_stock["price"],
+                   session["user_id"])
         # 2. Add a transaction into user_stock with a negative shares value
         db.execute("INSERT INTO user_stock (user_id, stock_symbol, price, shares) VALUES (?,?,?,?)",
-            session["user_id"],
-            current_stock["symbol"],
-            current_stock["price"],
-            -shares_selling)
+                   session["user_id"],
+                   current_stock["symbol"],
+                   current_stock["price"],
+                   -shares_selling)
         # Redirect user to home page
         return redirect("/")
     else:
         # Get all shares the current user have
-        stock_owned = db.execute("SELECT stock_symbol AS symbols, SUM(shares) AS shares FROM user_stock WHERE user_id = ? GROUP BY stock_symbol", session["user_id"])
+        stock_owned = db.execute(
+            "SELECT stock_symbol AS symbols, SUM(shares) AS shares FROM user_stock WHERE user_id = ? GROUP BY stock_symbol", session["user_id"])
         # Render a sell form
         return render_template("sell.html", stocks=stock_owned)
-
 
 
 def errorhandler(e):
