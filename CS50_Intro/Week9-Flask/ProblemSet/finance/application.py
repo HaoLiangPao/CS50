@@ -247,7 +247,7 @@ def sell():
 
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-        shares_selling = request.form.get("shares")
+        shares_selling = int(request.form.get("shares"))
         symbol_select = request.form.get("symbolSelect")
         # Ensure a valid symbol is selected
         if symbol_select == "Sell...":
@@ -256,12 +256,15 @@ def sell():
         elif not shares_selling:
             return apology("must provide #shares", 403)
         # Ensure enough shares the current user owned
-        stock_owned = db.execute("SELECT SUM(shares) AS shares FROM user_stock WHERE user_id = ? WHERE stock_symbol= ? GROUP BY stock_symbol",
+        stock_owned = db.execute("SELECT SUM(shares) AS shares FROM user_stock WHERE user_id = ? AND stock_symbol= ? GROUP BY stock_symbol",
          session["user_id"],
          symbol_select)
-        if stock_owned < shares_selling:
+        print(session["user_id"])
+        print(symbol_select)
+        print(stock_owned)
+        if stock_owned[0]["shares"] < shares_selling:
             return apology("you dont have enough shares", 403)
-        
+
         # Start selling process
         current_stock = lookup(symbol_select)
         # 1. Add money to user's cash
@@ -274,12 +277,14 @@ def sell():
             current_stock["symbol"],
             current_stock["price"],
             -shares_selling)
+        # Redirect user to home page
+        return redirect("/")
     else:
         # Get all shares the current user have
-        stock_owned = db.execute("SELECT stock_symbol AS symbols SUM(shares) AS shares FROM user_stock WHERE user_id = ? GROUP BY stock_symbol", session["user_id"])
+        stock_owned = db.execute("SELECT stock_symbol AS symbols, SUM(shares) AS shares FROM user_stock WHERE user_id = ? GROUP BY stock_symbol", session["user_id"])
         # Render a sell form
-        return render_template("sell.html", stocks=stock_owned["symbols"])
-        
+        return render_template("sell.html", stocks=stock_owned)
+
 
 
 def errorhandler(e):
