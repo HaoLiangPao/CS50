@@ -65,11 +65,12 @@ def index():
             "numerical_total": price * shares
         })
     # Calculating the total wealth for the current user
-    total = 0.0
+    user = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
+    total = cash = user[0]["cash"]
     for stock in result:
         total += stock["numerical_total"]
     # Render template
-    return render_template("index.html", stocks=result, total=usd(total))
+    return render_template("index.html", stocks=result, total=usd(total), cash=usd(cash))
 
 
 @app.route("/buy", methods=["GET", "POST"])
