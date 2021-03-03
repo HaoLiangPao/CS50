@@ -80,19 +80,23 @@ def buy():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
 
-        symbol, shares = request.form.get("symbol"), int(request.form.get("shares"))
+        symbol, shares = request.form.get("symbol"), request.form.get("shares")
 
         # Ensure a stock symbol is entered
         if not symbol:
-            return apology("must provide symbol", 403)
+            return apology("must provide symbol", 400)
 
         # Ensure a number of shares is entered
         elif not shares:
-            return apology("must provide shares", 403)
+            return apology("must provide shares", 400)
 
-        elif shares:
-            if shares <= 0:
-                return apology("#shares must bigger than 0", 403)
+        # Ensure a number format shares is entered
+        elif not shares.isnumeric():
+            return apology("must provide numeric shares", 400)
+
+        # Ensure a number larger than 0 is entered as #shares
+        elif int(shares) <= 0:
+                return apology("#shares must bigger than 0", 400)
 
         # Check if enough cash under the user account
         record = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
@@ -100,7 +104,7 @@ def buy():
         cost = shares * stock["price"]
         # Do not approve the purchase when not enough money
         if record[0]["cash"] < cost:
-            return apology("you can't afford", 403)
+            return apology("you can't afford", 400)
 
         # Record the purchase within the database
         # 1. Update users, deduct cost from cash
@@ -124,7 +128,11 @@ def buy():
 @login_required
 def history():
     """Show history of transactions"""
-    return apology("TODO")
+    # Get all transaction records under the current user
+    transactions = db.execute("SELECT stock_symbol, shares, price, time FROM user_stock WHERE user_id = ?",
+                               session["user_id"])
+    # Render history template with all transactions listed
+    return render_template("history.html", records=transactions)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -183,10 +191,14 @@ def quote():
 
         # Ensure a stock symbol is entered
         if not request.form.get("symbol"):
-            return apology("must provide symbol", 403)
+            return apology("must provide symbol", 400)
 
         # Make API calls to check current price for this stock
         stock = lookup(request.form.get("symbol"))
+        # When invalid symbol been input
+        if not stock:
+            return apology("invalid symbol quoted", 400)
+        # Update the price with a transformed dollar string
         stock["price"] = usd(stock["price"])
 
         # Redirect to quote with GET method to display the lookup result
@@ -205,23 +217,23 @@ def register():
 
         # Ensure username was submitted
         if not request.form.get("username"):
-            return apology("must provide username", 403)
+            return apology("must provide username", 400)
 
         # Check if the user is already existed
         elif len(db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))) == 1:
-            return apology("user already exist", 403)
+            return apology("user already exist", 400)
 
         # Ensure password was submitted
         elif not request.form.get("password"):
-            return apology("must provide password", 403)
+            return apology("must provide password", 400)
 
         # Ensure password was confirmed
         elif not request.form.get("confirmation"):
-            return apology("must confirm password", 403)
+            return apology("must confirm password", 400)
 
         # Ensure password and the confirmed password matching
         elif request.form.get("password") != request.form.get("confirmation"):
-            return apology("password and confirmation have to match", 403)
+            return apology("password and confirmation have to match", 400)
 
 
         # User inputs are correct, register the user
@@ -252,10 +264,10 @@ def sell():
         symbol_select = request.form.get("symbolSelect")
         # Ensure a valid symbol is selected
         if symbol_select == "Sell...":
-            return apology("must select a symbol to sell", 403)
+            return apology("must select a symbol to sell", 400)
         # Ensure a valid number of shares entered
         elif not shares_selling:
-            return apology("must provide #shares", 403)
+            return apology("must provide #shares", 400)
         # Ensure enough shares the current user owned
         stock_owned = db.execute("SELECT SUM(shares) AS shares FROM user_stock WHERE user_id = ? AND stock_symbol= ? GROUP BY stock_symbol",
          session["user_id"],
@@ -264,7 +276,7 @@ def sell():
         print(symbol_select)
         print(stock_owned)
         if stock_owned[0]["shares"] < shares_selling:
-            return apology("you dont have enough shares", 403)
+            return apology("you dont have enough shares", 400)
 
         # Start selling process
         current_stock = lookup(symbol_select)
