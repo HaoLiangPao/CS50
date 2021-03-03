@@ -101,7 +101,11 @@ def buy():
         # Check if enough cash under the user account
         record = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
         stock = lookup(symbol)
-        cost = shares * stock["price"]
+        # Ensure a valid stock symbol is entered
+        if not stock:
+            return apology("must provide a valid symbol", 400)
+        # Calculate the cost of this transaction
+        cost = int(shares) * stock["price"]
         # Do not approve the purchase when not enough money
         if record[0]["cash"] < cost:
             return apology("you can't afford", 400)
