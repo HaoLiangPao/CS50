@@ -92,7 +92,7 @@ def main():
                 update(probabilities, one_gene, two_genes, have_trait, p)
 
     # Ensure probabilities sum to 1
-    # normalize(probabilities)
+    normalize(probabilities)
 
     # Print results
     for person in people:
@@ -299,7 +299,19 @@ def normalize(probabilities):
     Update `probabilities` such that each probability distribution
     is normalized (i.e., sums to 1, with relative proportions the same).
     """
-    raise NotImplementedError
+    # There are two probability distributions
+    # Normalize probabilities for each person
+    for person in set(probabilities):
+        # 1. trait: P(True) + P(False) == 1
+        normalization_factor = 1 / sum(probabilities[person]['trait'].values())
+        # Multiple each probability distribution with this factor
+        for distribution in probabilities[person]['trait']:
+            probabilities[person]['trait'][distribution] *= normalization_factor
+        # 2. gene: P(0) + P(1) + P(2) == 1
+        normalization_factor = 1 / sum(probabilities[person]['gene'].values())
+        # Multiple each probability distribution with this factor
+        for distribution in probabilities[person]['gene']:
+            probabilities[person]['gene'][distribution] *= normalization_factor
 
 
 if __name__ == "__main__":
