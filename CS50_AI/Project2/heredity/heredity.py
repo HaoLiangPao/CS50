@@ -88,11 +88,11 @@ def main():
             for two_genes in powerset(names - one_gene):
                 print(f"Two_gene is {two_genes}")
                 # Update probabilities with new joint probability
-                # p = joint_probability(people, one_gene, two_genes, have_trait)
-                # update(probabilities, one_gene, two_genes, have_trait, p)
+                p = joint_probability(people, one_gene, two_genes, have_trait)
+                update(probabilities, one_gene, two_genes, have_trait, p)
 
     # Ensure probabilities sum to 1
-    normalize(probabilities)
+    # normalize(probabilities)
 
     # Print results
     for person in people:
@@ -192,7 +192,7 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         # If a person has no parents recorded:
         if people[person]["father"] is None and people[person]["mother"] is None:
             # Estimate the gene combination based on PROBS
-            p_no_gene = PROBS["gene"][1]
+            p_one_gene = PROBS["gene"][1]
         # A person has parents whose genes are recorded
         else:
             # probability of having gene passed from father, and the probability of having it from mother
@@ -270,7 +270,28 @@ def update(probabilities, one_gene, two_genes, have_trait, p):
     Which value for each distribution is updated depends on whether
     the person is in `have_gene` and `have_trait`, respectively.
     """
-    raise NotImplementedError
+    # Set of people without a gene
+    no_genes = (set(probabilities) - one_gene - two_genes)
+    for person in no_genes:
+        probabilities[person]['gene'][0] += p
+        if person in have_trait:
+            probabilities[person]['trait'][True] += p
+        else:
+            probabilities[person]['trait'][False] += p
+    # One gene
+    for person in one_gene:
+        probabilities[person]['gene'][1] += p
+        if person in have_trait:
+            probabilities[person]['trait'][True] += p
+        else:
+            probabilities[person]['trait'][False] += p
+    # Two gene
+    for person in two_genes:
+        probabilities[person]['gene'][2] += p
+        if person in have_trait:
+            probabilities[person]['trait'][True] += p
+        else:
+            probabilities[person]['trait'][False] += p        
 
 
 def normalize(probabilities):
