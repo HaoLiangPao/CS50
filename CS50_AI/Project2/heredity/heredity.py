@@ -44,7 +44,7 @@ def main():
         sys.exit("Usage: python heredity.py data.csv")
     people = load_data(sys.argv[1])
 
-    print(f"people is : {people}")
+    # print(f"people is : {people}")
 
     # Keep track of gene and trait probabilities for each person (default probability)
     probabilities = {
@@ -62,12 +62,11 @@ def main():
         for person in people
     }
 
-    print(f"probabilities is : {probabilities}")
+    # print(f"probabilities is : {probabilities}")
 
     # Loop over all sets of people who might have the trait
     names = set(people)
     for have_trait in powerset(names):
-        print(f"\nHave_trait is: {have_trait}")
 
         # Check if current set of people violates known information
         fails_evidence = any(
@@ -84,9 +83,7 @@ def main():
         # Start calculating the joint-probability when the sampling is possible
         # Loop over all sets of people who might have the gene
         for one_gene in powerset(names):
-            print(f"One_gene is {one_gene}")
             for two_genes in powerset(names - one_gene):
-                print(f"Two_gene is {two_genes}")
                 # Update probabilities with new joint probability
                 p = joint_probability(people, one_gene, two_genes, have_trait)
                 update(probabilities, one_gene, two_genes, have_trait, p)
@@ -175,7 +172,7 @@ def joint_probability(people, one_gene, two_genes, have_trait):
                 elif parent in two_genes:
                     p_no_gene *= 0.01
         
-        print(f"p_no_gene is: {p_no_gene}")
+        # print(f"p_no_gene is: {p_no_gene}")
         
         # If he/she has trait
         if person in have_trait:
@@ -183,7 +180,7 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         else:
             p_no_gene_trait = PROBS["trait"][0][False]
 
-        print(p_no_gene * p_no_gene_trait)
+        # print(p_no_gene * p_no_gene_trait)
         # Adding the probability of he/she having no gene and (not)having a trait to the result
         joint_p *= p_no_gene * p_no_gene_trait
 
@@ -221,14 +218,14 @@ def joint_probability(people, one_gene, two_genes, have_trait):
                 elif not_gene_source in two_genes:
                     p_one_gene_cases[case] *= 0.01
             
-            print(p_one_gene_cases)
+            # print(p_one_gene_cases)
             p_one_gene = sum(p_one_gene_cases.values())
-            print(p_one_gene)
+            # print(p_one_gene)
 
         # Probability of (not)having a trait
         p_one_gene_trait = (PROBS["trait"][1][True] if person in have_trait
                             else PROBS["trait"][1][False])
-        print(p_one_gene * p_one_gene_trait)
+        # print(p_one_gene * p_one_gene_trait)
         # Upadating the joint probability result
         joint_p *= p_one_gene * p_one_gene_trait
     
@@ -252,11 +249,11 @@ def joint_probability(people, one_gene, two_genes, have_trait):
                 elif parent in one_gene:
                     p_two_gene *= 0.5
                 elif parent in two_genes:
-                    p_two_gene *= 0.09
+                    p_two_gene *= 0.99
         # Probability of (not)having a trait
         p_two_gene_trait = (PROBS["trait"][2][True] if person in have_trait
                             else PROBS["trait"][2][False])
-        print(p_two_gene * p_two_gene_trait)
+        # print(p_two_gene * p_two_gene_trait)
         # Upadating the joint probability result
         joint_p *= p_two_gene * p_two_gene_trait
 
