@@ -149,7 +149,118 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         * everyone in set `have_trait` has the trait, and
         * everyone not in set` have_trait` does not have the trait.
     """
-    raise NotImplementedError
+    # Default joint probability
+    joint_p = 1
+    # Start with people with no genes
+    no_genes = (set(people) - one_gene - two_genes)
+    for person in no_genes:
+        # If a person has no parents recorded:
+        if people[person]["father"] is None and people[person]["mother"] is None:
+            # Estimate the gene combination based on PROBS
+            p_no_gene = PROBS["gene"][0]
+        # A person has parents whose genes are recorded
+        else:
+            # We need to calculate the probability of this person with no genes
+            p_no_gene = 1
+            # A set of parents
+            parents = [people[person]["father"], people[person]["mother"]]
+            # Get the probability of having gene passed from parents
+            for parent in parents:
+                # check #gene the parent has
+                if parent in no_genes:
+                    p_no_gene *= 0.99
+                elif parent in one_gene:
+                    # 0.5 * (1 - 0.01) + 0.5 * 0.01
+                    p_no_gene *= 0.5
+                elif parent in two_genes:
+                    p_no_gene *= 0.01
+        
+        print(f"p_no_gene is: {p_no_gene}")
+        
+        # If he/she has trait
+        if person in have_trait:
+            p_no_gene_trait = PROBS["trait"][0][True]
+        else:
+            p_no_gene_trait = PROBS["trait"][0][False]
+
+        print(p_no_gene * p_no_gene_trait)
+        # Adding the probability of he/she having no gene and (not)having a trait to the result
+        joint_p *= p_no_gene * p_no_gene_trait
+
+    # Loop through people with one genes
+    for person in one_gene:
+        # If a person has no parents recorded:
+        if people[person]["father"] is None and people[person]["mother"] is None:
+            # Estimate the gene combination based on PROBS
+            p_no_gene = PROBS["gene"][1]
+        # A person has parents whose genes are recorded
+        else:
+            # probability of having gene passed from father, and the probability of having it from mother
+            p_one_gene_cases = {"father": 1, "mother": 1}
+            # A set of parents
+            parents = [people[person]["father"], people[person]["mother"]]
+            
+            # Go through both the mother, father cases
+            for case in p_one_gene_cases:
+                other_case = "mother" if case == "father" else "father"
+                # Father/Mother give the gene
+                gene_source = people[person][case]
+                not_gene_source = people[person][other_case]
+                # This parent donate the gene
+                if gene_source in no_genes:
+                    p_one_gene_cases[case] *= 0.01
+                elif gene_source in one_gene:
+                    p_one_gene_cases[case] *= 0.5
+                elif gene_source in two_genes:
+                    p_one_gene_cases[case] *= 0.99
+                # The other parent should not donate a gene
+                if not_gene_source in no_genes:
+                    p_one_gene_cases[case] *= 0.99
+                elif not_gene_source in one_gene:
+                    p_one_gene_cases[case] *= 0.5
+                elif not_gene_source in two_genes:
+                    p_one_gene_cases[case] *= 0.01
+            
+            print(p_one_gene_cases)
+            p_one_gene = sum(p_one_gene_cases.values())
+            print(p_one_gene)
+
+        # Probability of (not)having a trait
+        p_one_gene_trait = (PROBS["trait"][1][True] if person in have_trait
+                            else PROBS["trait"][1][False])
+        print(p_one_gene * p_one_gene_trait)
+        # Upadating the joint probability result
+        joint_p *= p_one_gene * p_one_gene_trait
+    
+    # Loop through people with two genes
+    for person in two_genes:
+        # If a person has no parents recorded:
+        if people[person]["father"] is None and people[person]["mother"] is None:
+            # Estimate the gene combination based on PROBS
+            p_two_gene = PROBS["gene"][2]
+        # A person has parents whose genes are recorded
+        else:
+            # We need to calculate the probability of this person with no genes
+            p_two_gene = 1
+            # A set of parents
+            parents = [people[person]["father"], people[person]["mother"]]
+            # Get the probability of having gene passed from parents
+            for parent in parents:
+                # check #gene the parent has
+                if parent in no_genes:
+                    p_two_gene *= 0.01
+                elif parent in one_gene:
+                    p_two_gene *= 0.5
+                elif parent in two_genes:
+                    p_two_gene *= 0.09
+        # Probability of (not)having a trait
+        p_two_gene_trait = (PROBS["trait"][2][True] if person in have_trait
+                            else PROBS["trait"][2][False])
+        print(p_two_gene * p_two_gene_trait)
+        # Upadating the joint probability result
+        joint_p *= p_two_gene * p_two_gene_trait
+
+    return joint_p
 
 
 def update(probabilities, one_gene, two_genes, have_trait, p):
