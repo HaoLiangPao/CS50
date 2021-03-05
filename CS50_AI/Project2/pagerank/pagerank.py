@@ -2,6 +2,7 @@ import os
 import random
 import re
 import sys
+import numpy as np
 
 DAMPING = 0.85
 SAMPLES = 10000
@@ -31,11 +32,15 @@ def crawl(directory):
 
     # Extract all links from HTML files
     for filename in os.listdir(directory):
+        # Only check html files
         if not filename.endswith(".html"):
             continue
+        # Open and read html page
         with open(os.path.join(directory, filename)) as f:
             contents = f.read()
+            # Get all links 
             links = re.findall(r"<a\s+(?:[^>]*?)href=\"([^\"]*)\"", contents)
+            # Remove the page itself if it links to itself
             pages[filename] = set(links) - {filename}
 
     # Only include links to other pages in the corpus
@@ -57,7 +62,21 @@ def transition_model(corpus, page, damping_factor):
     linked to by `page`. With probability `1 - damping_factor`, choose
     a link at random chosen from all pages in the corpus.
     """
-    raise NotImplementedError
+    # List of pages this page links to
+    link_to = corpus[page]
+    # Initialize a probability distribution for all pages
+    model = {
+        page: 0 for page in corpus
+    }
+    # Distributing damping factor evenly (links)
+    links_p = damping_factor / len(corpus[page])
+    for link in link_to:
+        model[link] += links_p
+    # Distributing damping factor evenly (all pages)
+    all_p = (1 - damping_factor) / len(corpus)
+    for link in corpus:
+        model[link] += all_p
+    return model
 
 
 def sample_pagerank(corpus, damping_factor, n):
@@ -69,7 +88,32 @@ def sample_pagerank(corpus, damping_factor, n):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    # Create a page rank calculator
+    ranks = {
+        page: 0 for page in corpus
+    }
+    # First start at a random page
+    start = random.choice(list(corpus.keys()))
+    # Keep samplping until we get expected #samples
+    while n > 0:
+        model = transition_model(corpus, start, damping_factor)
+        probabilities = []
+        next_pages = []
+        # Updating the cumulative probability
+        for page in model:
+            ranks[page] += model[page]
+            next_pages.append(page)
+            probabilities.append(model[page])
+        # Choose a next start point
+        choice = np.random.choice(len(probabilities), 1, probabilities)[0]
+        start = next_pages[choice]
+        # Decrease the #samples
+        n -= 1
+    # Normalize the probability when cumulative probability been calculated
+    factor = 1 / sum(ranks.values())
+    for page in ranks:
+        ranks[page] = ranks[page] * factor
+    return ranks
 
 
 def iterate_pagerank(corpus, damping_factor):
