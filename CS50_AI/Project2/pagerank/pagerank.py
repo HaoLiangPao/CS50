@@ -2,7 +2,7 @@ import os
 import random
 import re
 import sys
-import numpy as np
+import math
 
 DAMPING = 0.85
 SAMPLES = 10000
@@ -17,10 +17,10 @@ def main():
     print(f"PageRank Results from Sampling (n = {SAMPLES})")
     for page in sorted(ranks):
         print(f"  {page}: {ranks[page]:.4f}")
-    # ranks = iterate_pagerank(corpus, DAMPING)
-    # print(f"PageRank Results from Iteration")
-    # for page in sorted(ranks):
-    #     print(f"  {page}: {ranks[page]:.4f}")
+    ranks = iterate_pagerank(corpus, DAMPING)
+    print(f"PageRank Results from Iteration")
+    for page in sorted(ranks):
+        print(f"  {page}: {ranks[page]:.4f}")
 
 
 def crawl(directory):
@@ -103,22 +103,13 @@ def sample_pagerank(corpus, damping_factor, n):
     while n > 0:
         model = transition_model(corpus, start, damping_factor)
         # print(f"transition model is: {model}")
-        # Choose a next start point
-        next_pages = []
-        probabilities = []
         for page in model:
             # 1. Updating the cumulative probability
             ranks[page] += model[page]
-            # 2. Keep record of page probabilities
-            next_pages.append(page)
-            # 3. Make a probability list with same order as next_pages
-            probabilities.append(model[page])
-        choice = np.random.choice(len(probabilities), 1, probabilities)[0]
-        start = next_pages[choice]
-        print(f"probabilities is: {probabilities}")
-        print(f"next_pages is: {next_pages}")
-        print(f"model is: {model}")
-        print(f"start is: {start}")
+        # Choose the next start page
+        # Make a probability & page pair set
+        population, weights = zip(*model.items())
+        start = random.choices(population, weights=weights, k=1)[0]
         # Decrease the #samples
         n -= 1
     # Normalize the probability when cumulative probability been calculated
@@ -138,50 +129,47 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    # Create a page rank calculator
-    ranks = {
-        page: 0 for page in corpus
-    }
     # Total number of pages in corpus
     N = len(corpus)
+    # Create a page rank calculator (assuming everypage has an equal probability)
+    ranks = {
+        page: 1 / N for page in corpus
+    }
     # Iterate through all pages, sum the probability up
-    # PR(p) = (1-d)/N + d*SUM(PR(i)/NumLinks(i))
-    for page in corpus:
-        # First part, chose a page at random and ended up on page p
-        probability1 = (1 - damping_factor) / N
-        # Second part, the suffer followed a link from a page i to page p
-        probability2 = 0
-        numLinks = corpus[page]
-        for link in numLinks:
-            probability2 += iterate_pagerank(numLinks, damping_factor) / len(numLinks)
-        probability = probability1 + damping_factor * probability2
-        probability[page]
-    return 0
+    threshold = 0.001
+    repeat = True
+    temp_rank = {}
+    # Stop when probability converges
+    while repeat:
+        # PR(p) = (1-d)/N + d*SUM(PR(i)/NumLinks(i))    
+        for page_p in corpus:
+            # First part, chose a page at random and ended up on page p
+            p_1 = (1 - damping_factor) / N
+            # Second part, the suffer followed a link from a page i to page p
+            p_2 = 0
+            # All links pointing to the current page
+            for page_i in corpus:
+                # Found a page i links to page p
+                if page_p in corpus[page_i]:
+                    p_2 += ranks[page_i] / len(corpus[page_i])
+                # Treat pages with no links as pages having links to every page
+                elif not corpus[page_i]:
+                    p_2 += ranks[page_i] / len(corpus)
+            # Pagerank probability
+            probability = p_1 + p_2 * damping_factor
+            # Temperarely storing a new probability
+            temp_rank[page_p] = probability
 
+        # Stop repeating when the probability of all pages been calculated
+        repeat = False
 
-def iterate_pagerank_sum(links, damping_factor, N):
-    # Total number of pages in corpus
-    # N = len(corpus)
-    # Base Case: Only one page to concern
-    if len(links) == 1:
-        # First part, chose a page at random and ended up on page p
-        probability1 = (1 - damping_factor) / N
-        # Second part, the suffer followed a link from a page i to page p
-        probability2 = 0
-
-    # Iterate through all pages, sum the probability up
-    # PR(p) = (1-d)/N + d*SUM(PR(i)/NumLinks(i))
-    for page in corpus:
-        # First part, chose a page at random and ended up on page p
-        probability1 = (1 - damping_factor) / N
-        # Second part, the suffer followed a link from a page i to page p
-        probability2 = 0
-        numLinks = corpus[page]
-        for link in numLinks:
-            probability2 += iterate_pagerank_sum(numLinks, damping_factor, N) / len(numLinks)
-        probability = probability1 + damping_factor * probability2
-    return probability
-    
+        # Test if any page has a probability change more than the threshold
+        for page in temp_rank:
+            if not math.isclose(temp_rank[page], ranks[page], abs_tol=threshold):
+                # Update the result ranks
+                ranks[page] = temp_rank[page]
+                repeat = True
+    return ranks
 
 
 if __name__ == "__main__":
