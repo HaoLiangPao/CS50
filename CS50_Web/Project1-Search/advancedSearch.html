@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Search</title>
+		<link rel="stylesheet" href="style.css" />
+	</head>
+	<body>
+		<div class="container">
+			<div class="top">
+				<a class="button" id="search" href="./index.html">Basic</a>
+				<a class="button" id="image" href="./imageSearch.html">Image</a>
+				<a class="button" id="advancedSearch" href="./advancedSearch.html"
+					>Advanced</a
+				>
+			</div>
+			<span class="rightClear"></span>
+			<div class="bottom-wrapper">
+				<img src="googlelogo_color_272x92dp.png" width="250px" />
+				<div class="appbar">
+					<label>Advanced Search</label>
+				</div>
+				<div class="gy3Eif"></div>
+				<form class="advanced_search" action="https://google.com/search">
+					<label style="font-size: 30px; font-weight: 500"
+						>Find pages with...</label
+					>
+					<br />
+					<div class="row">
+						<label for="as_q">All these words:</label>
+						<input type="text" name="as_q" class="box" />
+					</div>
+					<div class="row">
+						<label for="as_q">Exact word/phrase:</label>
+						<input type="text" name="as_epq" class="box" />
+					</div>
+					<div class="row">
+						<label for="">Any of these words:</label>
+						<input type="text" name="as_oq" class="box" />
+					</div>
+					<div class="row">
+						<label for="">None of these words:</label>
+						<input type="text" name="as_oq" class="box" />
+					</div>
+					<div class="row">
+						<div style="display: hidden"></div>
+						<input
+							type="submit"
+							value="Advanced Search"
+							class="advanced_search_button"
+						/>
+					</div>
+				</form>
+			</div>
+		</div>
+	</body>
+</html>
