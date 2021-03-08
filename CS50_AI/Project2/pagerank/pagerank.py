@@ -145,13 +145,19 @@ def iterate_pagerank(corpus, damping_factor):
             probability2 += iterate_pagerank(numLinks, damping_factor) / len(numLinks)
         probability = probability1 + damping_factor * probability2
         probability[page]
-    return (1 - damping_factor) / 
+    return 0
 
 
 def iterate_pagerank_sum(links, damping_factor, N):
     # Total number of pages in corpus
     # N = len(corpus)
-    
+    # Base Case: Only one page to concern
+    if len(links) == 1:
+        # First part, chose a page at random and ended up on page p
+        probability1 = (1 - damping_factor) / N
+        # Second part, the suffer followed a link from a page i to page p
+        probability2 = 0
+
     # Iterate through all pages, sum the probability up
     # PR(p) = (1-d)/N + d*SUM(PR(i)/NumLinks(i))
     for page in corpus:
@@ -161,9 +167,9 @@ def iterate_pagerank_sum(links, damping_factor, N):
         probability2 = 0
         numLinks = corpus[page]
         for link in numLinks:
-            probability2 += iterate_pagerank(numLinks, damping_factor) / len(numLinks)
+            probability2 += iterate_pagerank_sum(numLinks, damping_factor, N) / len(numLinks)
         probability = probability1 + damping_factor * probability2
-    return (1 - damping_factor) / 
+    return probability
     
 
 
