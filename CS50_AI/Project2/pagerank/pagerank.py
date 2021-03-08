@@ -17,10 +17,10 @@ def main():
     print(f"PageRank Results from Sampling (n = {SAMPLES})")
     for page in sorted(ranks):
         print(f"  {page}: {ranks[page]:.4f}")
-    ranks = iterate_pagerank(corpus, DAMPING)
-    print(f"PageRank Results from Iteration")
-    for page in sorted(ranks):
-        print(f"  {page}: {ranks[page]:.4f}")
+    # ranks = iterate_pagerank(corpus, DAMPING)
+    # print(f"PageRank Results from Iteration")
+    # for page in sorted(ranks):
+    #     print(f"  {page}: {ranks[page]:.4f}")
 
 
 def crawl(directory):
@@ -70,7 +70,11 @@ def transition_model(corpus, page, damping_factor):
         page: 0 for page in corpus
     }
     # Distributing damping factor evenly (links)
-    links_p = damping_factor / len(corpus[page])
+    # Treat page with no links to other pages as having links to all pages
+    if len(corpus[page]) == 0:
+        links_p = damping_factor / len(corpus)
+    else:
+        links_p = damping_factor / len(corpus[page])
     for link in link_to:
         model[link] += links_p
     # Distributing damping factor evenly (all pages)
@@ -98,16 +102,22 @@ def sample_pagerank(corpus, damping_factor, n):
     # Keep samplping until we get expected #samples
     while n > 0:
         model = transition_model(corpus, start, damping_factor)
-        probabilities = []
-        next_pages = []
+        # print(f"transition model is: {model}")
         # Updating the cumulative probability
         for page in model:
             ranks[page] += model[page]
-            next_pages.append(page)
-            probabilities.append(model[page])
         # Choose a next start point
+        next_pages = list(corpus[start])
+        probabilities = []
+        # Make a probability list with same order as next_pages
+        for page in next_pages:
+            probabilities.append(model[page])
         choice = np.random.choice(len(probabilities), 1, probabilities)[0]
         start = next_pages[choice]
+        print(f"probabilities is: {probabilities}")
+        print(f"next_pages is: {next_pages}")
+        print(f"model is: {model}")
+        print(f"start is: {start}")
         # Decrease the #samples
         n -= 1
     # Normalize the probability when cumulative probability been calculated
