@@ -103,14 +103,15 @@ def sample_pagerank(corpus, damping_factor, n):
     while n > 0:
         model = transition_model(corpus, start, damping_factor)
         # print(f"transition model is: {model}")
-        # Updating the cumulative probability
-        for page in model:
-            ranks[page] += model[page]
         # Choose a next start point
-        next_pages = list(corpus[start])
+        next_pages = []
         probabilities = []
-        # Make a probability list with same order as next_pages
-        for page in next_pages:
+        for page in model:
+            # 1. Updating the cumulative probability
+            ranks[page] += model[page]
+            # 2. Keep record of page probabilities
+            next_pages.append(page)
+            # 3. Make a probability list with same order as next_pages
             probabilities.append(model[page])
         choice = np.random.choice(len(probabilities), 1, probabilities)[0]
         start = next_pages[choice]
