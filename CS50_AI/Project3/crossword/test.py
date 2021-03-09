@@ -4,31 +4,24 @@ from generate import *
 
 class TestEnforceNodeConsistency(unittest.TestCase):
     def test_enforce_node_consistency(self):
-        structure0 = """#___#
-                        #_##_
-                        #_##_
-                        #_##_
-                        #____
-                        """
-
-        model_2 = {"1.html": 0.05, "2.html": 0.475, "3.html": 0.475}
-
-        for link in model_1:
-            if link in model_2:
-                self.assertAlmostEqual(model_1[link], model_2[link], places=2)
-
-    def test_transition_model_no_links(self):
-        model_1 = transition_model(
-            {"1.html": {}, "2.html": {"3.html"}, "3.html": {"2.html"}},
-            "1.html",
-            0.85
-        )
-
-        model_2 = {"1.html": 0.33, "2.html": 0.33, "3.html": 0.33}
-
-        for link in model_1:
-            if link in model_2:
-                self.assertAlmostEqual(model_1[link], model_2[link], places=2)
+        # Get data source
+        structure = "data/structure0.txt"
+        words = "data/words0.txt"
+        # Generate crossword
+        crossword = Crossword(structure, words)
+        creator = CrosswordCreator(crossword)
+        # Before enfoce_node_consistency:
+        before = {Variable(1, 4, 'down', 4): {'EIGHT','FIVE','FOUR','NINE','ONE','SEVEN','SIX','TEN','THREE','TWO'}, 
+                  Variable(4, 1, 'across', 4): {'EIGHT','FIVE','FOUR','NINE','ONE','SEVEN','SIX','TEN','THREE','TWO'},
+                  Variable(0, 1, 'across', 3): {'EIGHT','FIVE','FOUR','NINE','ONE','SEVEN','SIX','TEN','THREE','TWO'},
+                  Variable(0, 1, 'down', 5): {'EIGHT','FIVE','FOUR','NINE','ONE','SEVEN','SIX','TEN','THREE','TWO'}}
+        self.assertDictEqual(before, creator.domains)
+        after = {Variable(1, 4, 'down', 4): {'FIVE', 'FOUR', 'NINE'},
+                 Variable(4, 1, 'across', 4): {'FIVE', 'FOUR', 'NINE'},
+                 Variable(0, 1, 'across', 3): {'ONE', 'SIX', 'TEN', 'TWO'},
+                 Variable(0, 1, 'down', 5): {'EIGHT', 'SEVEN', 'THREE'}}
+        creator.enforce_node_consistency()
+        self.assertDictEqual(after, creator.domains)
 
 
 if __name__ == '__main__':
