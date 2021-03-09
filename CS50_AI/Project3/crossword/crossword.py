@@ -10,6 +10,7 @@ class Variable():
         self.direction = direction
         self.length = length
         self.cells = []
+        # Set cell elements to (i, j) pairs
         for k in range(self.length):
             self.cells.append(
                 (self.i + (k if self.direction == Variable.DOWN else 0),
@@ -68,16 +69,19 @@ class Crossword():
 
                 # Vertical words
                 starts_word = (
+                    # [i][j] is True and one index up is False, so the word should start at this index
                     self.structure[i][j]
                     and (i == 0 or not self.structure[i - 1][j])
                 )
                 if starts_word:
                     length = 1
+                    # Add all words as vertical words
                     for k in range(i + 1, self.height):
                         if self.structure[k][j]:
                             length += 1
                         else:
                             break
+                    # Keep direction, lenght, and origin, which can be used to drop off variables while maintaining consistency
                     if length > 1:
                         self.variables.add(Variable(
                             i=i, j=j,
@@ -92,6 +96,7 @@ class Crossword():
                 )
                 if starts_word:
                     length = 1
+                    # Calculating unary constraints
                     for k in range(j + 1, self.width):
                         if self.structure[i][k]:
                             length += 1
@@ -115,11 +120,13 @@ class Crossword():
                     continue
                 cells1 = v1.cells
                 cells2 = v2.cells
+                # Get the overlaped (i, j) pairs --- Binary Constraints
                 intersection = set(cells1).intersection(cells2)
                 if not intersection:
                     self.overlaps[v1, v2] = None
                 else:
                     intersection = intersection.pop()
+                    # Store the index of each word based on (i, j) index pair
                     self.overlaps[v1, v2] = (
                         cells1.index(intersection),
                         cells2.index(intersection)
