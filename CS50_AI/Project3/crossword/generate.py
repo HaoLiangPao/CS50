@@ -123,7 +123,31 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        raise NotImplementedError
+        # 1. Neighbors can't have different value at overlaping point
+        # Flag for revised or not
+        revised = False
+        # Remove vals list
+        x_remove = []
+        overlap = self.crossword.overlaps[x, y]
+        # Eliminating values from domains only if they are neighbors
+        if overlap:
+            # Check binary constraint for each possible values within a variable domain x
+            for val_x in self.domains[x]:
+                found = False
+                for val_y in self.domains[y]:
+                    # Test binary constraint
+                    if val_x[overlap[0]] == val_y[overlap[1]]:
+                        found = True
+                        break
+                # For given value x, no value y can meet the binary constraint
+                if not found:
+                    x_remove.append(val_x)
+        # Remove elements from the x domain
+        for val_x in x_remove:
+            self.domains[x].remove(val_x)
+            revised = True
+        # 2. Same element can not appear more than once
+        return revised
 
     def ac3(self, arcs=None):
         """
