@@ -53,5 +53,27 @@ class TestEnforceNodeConsistency(unittest.TestCase):
                  Variable(0, 1, 'down', 5): {'EIGHT', 'SEVEN', 'THREE'}}
         self.assertDictEqual(after, creator.domains)
 
+
+        def test_ac3(self):
+            # Get data source
+            structure = "data/structure0.txt"
+            words = "data/words0.txt"
+            # Generate crossword
+            crossword = Crossword(structure, words)
+            creator = CrosswordCreator(crossword)
+            # Enforce_node_consistency
+            creator.enforce_node_consistency()
+            # ac3 - make the whole board arc-consistent
+            before = {Variable(1, 4, 'down', 4): {'FIVE', 'FOUR', 'NINE'},
+                    Variable(4, 1, 'across', 4): {'FIVE', 'FOUR', 'NINE'},
+                    Variable(0, 1, 'across', 3): {'ONE', 'SIX', 'TEN', 'TWO'},
+                    Variable(0, 1, 'down', 5): {'EIGHT', 'SEVEN', 'THREE'}}
+            self.assertDictEqual(before, creator.domains)
+            creator.ac3()
+            after = {Variable(1, 4, 'down', 4): {'FIVE', 'NINE'},
+                     Variable(4, 1, 'across', 4): {'NINE'},
+                     Variable(0, 1, 'across', 3): {'SIX'},
+                     Variable(0, 1, 'down', 5): {'SEVEN'}}
+            self.assertDictEqual(after, creator.domains)
 if __name__ == '__main__':
     unittest.main()
