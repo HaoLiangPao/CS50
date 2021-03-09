@@ -10,6 +10,7 @@ class CrosswordCreator():
         Create new CSP crossword generate.
         """
         self.crossword = crossword
+        # Add all words to each domain of a variable
         self.domains = {
             var: self.crossword.words.copy()
             for var in self.crossword.variables
@@ -19,10 +20,12 @@ class CrosswordCreator():
         """
         Return 2D array representing a given assignment.
         """
+        # Generate an empty 2D array
         letters = [
             [None for _ in range(self.crossword.width)]
             for _ in range(self.crossword.height)
         ]
+        # Add items from a given assignment to the 2D array
         for variable, word in assignment.items():
             direction = variable.direction
             for k in range(len(word)):
@@ -99,7 +102,17 @@ class CrosswordCreator():
         (Remove any values that are inconsistent with a variable's unary
          constraints; in this case, the length of the word.)
         """
-        raise NotImplementedError
+        # Enforce node consistency for each variable
+        vars = self.crossword.variables
+        for var in vars:
+            # Compare values in the domain of each variable, remove it if length not suitable
+            val_to_remove = []
+            for val in self.domains[var]:
+                # Remove a value from the domain if length is not equivalent
+                if var.length != len(val):
+                    val_to_remove.append(val)
+            for val in val_to_remove:
+                self.domains[var].remove(val)
 
     def revise(self, x, y):
         """
