@@ -216,7 +216,7 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        raise NotImplementedError
+        return self.domains[var]
 
     def select_unassigned_variable(self, assignment):
         """
@@ -226,7 +226,11 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-        raise NotImplementedError
+        # Select a variable not in assignment yet
+        for var in self.crossword.variables:
+            if var not in assignment:
+                return var
+        # Since this function is only called when the assignment is not complete
 
     def backtrack(self, assignment):
         """
@@ -238,11 +242,25 @@ class CrosswordCreator():
         If no assignment is possible, return None.
         """
         # Check if assignment is complete
-        
         if self.assignment_complete(assignment):
+            return assignment
+        # Start backtracking by trying different variables
+        var = self.select_unassigned_variable(assignment)
+        # Trying different values within the variable domain
+        for val in self.domains[var]:
+            # Temperaraly add the value to the assignment
+            assignment[var] = val
+            # Current value could be add without violating constraints
             if self.consistent(assignment):
-                return True
-        raise NotImplementedError
+                # Try implement other variables
+                result = self.backtrack(assignment)
+                # If a complete assignment been returned instead of a none
+                if result:
+                    return result
+            # Current value does not fit the other values within the assignment
+            assignment[var] = None
+        # If no assignment is possible
+        return None
 
 
 def main():
