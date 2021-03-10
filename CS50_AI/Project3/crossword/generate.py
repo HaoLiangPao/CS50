@@ -1,4 +1,5 @@
 import sys
+import math
 
 from crossword import *
 
@@ -226,11 +227,30 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-        # Select a variable not in assignment yet
+        # 1. Get variables not in assignment yet
+        unassigned_vars = []
         for var in self.crossword.variables:
             if var not in assignment:
-                return var
-        # Since this function is only called when the assignment is not complete
+                unassigned_vars.append(var)
+        # 2. MRV (minimum remaining values) Heuristic
+        min_mrv = math.inf
+        vars_mrv = sorted(unassigned_vars, key=lambda var: len(self.domains[var]))
+        # print(vars_mrv)
+        vars_degree = []
+        for var in vars_mrv:
+            # If there is a unassigned variable with less possible choices
+            # print(min_mrv, len(self.domains[var]))
+            if var not in assignment and len(self.domains[var]) < min_mrv:
+                vars_degree.append(var)
+                min_mrv = len(self.domains[var])
+        # If there is a tie, choose the one with highest degree
+        # Degree Heuristic
+        # Get the variable with the highest degree
+        # print(sorted(vars_degree, key=lambda var: len(self.crossword.neighbors(var)), reverse=True))
+        result = sorted(vars_degree, key=lambda var: len(self.crossword.neighbors(var)), reverse=True)[0]
+        # Return the optimized variable selection
+        return result
+
 
     def backtrack(self, assignment):
         """
