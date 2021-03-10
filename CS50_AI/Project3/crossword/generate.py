@@ -186,8 +186,12 @@ class CrosswordCreator():
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
-        for var in assignment:
-            if not assignment[var] or len(assignment[var]) == 0:
+        # Check the assignment has values for all variables
+        if len(assignment) != len(self.crossword.variables):
+            return False
+        # Check every value in the assignment is meaningful
+        for var in self.crossword.variables:
+            if (var not in assignment) or (len(assignment[var]) == 0):
                 return False
         return True
 
@@ -233,6 +237,11 @@ class CrosswordCreator():
 
         If no assignment is possible, return None.
         """
+        # Check if assignment is complete
+        
+        if self.assignment_complete(assignment):
+            if self.consistent(assignment):
+                return True
         raise NotImplementedError
 
 

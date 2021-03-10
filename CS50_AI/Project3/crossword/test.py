@@ -82,13 +82,20 @@ class TestEnforceNodeConsistency(unittest.TestCase):
         # Generate crossword
         crossword = Crossword(structure, words)
         creator = CrosswordCreator(crossword)
+        # Correct assignment
         assignment = {Variable(1, 4, 'down', 4): 'FIVE',
             Variable(4, 1, 'across', 4): 'NINE',
             Variable(0, 1, 'across', 3): 'SIX',
             Variable(0, 1, 'down', 5): 'SEVEN'}
         self.assertEqual(creator.assignment_complete(assignment), True)
+        # Assignment missing value
         assignment = {Variable(1, 4, 'down', 4): '',
             Variable(4, 1, 'across', 4): 'NINE',
+            Variable(0, 1, 'across', 3): 'SIX',
+            Variable(0, 1, 'down', 5): 'SEVEN'}
+        self.assertEqual(creator.assignment_complete(assignment), False)
+        # Component lacking variables
+        assignment = {Variable(4, 1, 'across', 4): 'NINE',
             Variable(0, 1, 'across', 3): 'SIX',
             Variable(0, 1, 'down', 5): 'SEVEN'}
         self.assertEqual(creator.assignment_complete(assignment), False)
