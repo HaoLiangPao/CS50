@@ -217,7 +217,19 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        return self.domains[var]
+        # Least-constraining values heuristic
+        lc_values = []
+        # Calculating lc for each value
+        for val in self.domains[var]:
+            # Iterate through same values on neighbor's domains
+            count = 0
+            for neighbor in self.crossword.neighbors(var):
+                if val in self.domains[neighbor]:
+                    count += 1
+            lc_values.append((val, count))
+        # Sort the values within a variable domain with leaset constraints
+        lc_values.sort(key=lambda var: var[1])
+        return [var[0] for var in lc_values]
 
     def select_unassigned_variable(self, assignment):
         """
