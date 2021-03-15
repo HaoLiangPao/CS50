@@ -60,11 +60,11 @@ def load_data(data_dir):
     """
     images = []
     # labels = [ index for index in range(NUM_CATEGORIES)]
-    labels = [ index for index in range(3)]
+    labels = [ index for index in range(1)]
     # Get image sub dir (classification)
     # for sub_dir in range(NUM_CATEGORIES - 1):
     # A smaller dataset for testing
-    for sub_dir in range(3):
+    for sub_dir in range(1):
         sub_images = []
         # Walk the tree.
         for root, directories, files in os.walk(f"{data_dir}/{sub_dir}"):
@@ -73,7 +73,9 @@ def load_data(data_dir):
                 filepath = os.path.join(root, filename)
                 # Read the image and store the ndarray inside sub_images
                 img = cv2.imread(filepath)
-                sub_images.append(img)
+                # Resize image
+                resized = cv2.resize(img, (IMG_WIDTH, IMG_HEIGHT), interpolation = cv2.INTER_AREA)
+                sub_images.append(resized)
         # Add all images from this class to the bigger image array
         images.append(sub_images)
     return (images, labels)
