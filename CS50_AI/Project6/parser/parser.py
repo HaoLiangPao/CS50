@@ -16,11 +16,11 @@ V -> "smiled" | "tell" | "were"
 """
 
 NONTERMINALS = """
-S -> N V
-AP -> A | A AP
-NP -> N | D NP | AP NP | N PP
+S -> NP | NP VP | S Conj S
+AP -> Adj | Adv
+NP -> N | Det NP | AP NP | NP PP | NP AP
 PP -> P NP
-VP -> V | V NP | V NP PP
+VP -> V | V NP | V PP | AP VP
 """
 
 grammar = nltk.CFG.fromstring(NONTERMINALS + TERMINALS)
@@ -44,6 +44,7 @@ def main():
     # Attempt to parse sentence
     try:
         trees = list(parser.parse(s))
+        # print(f"trees are: {trees}")
     except ValueError as e:
         print(e)
         return
@@ -90,13 +91,24 @@ def np_chunk(tree):
     # Loop through all tree nodes
     while stack:
         tree_node = stack.pop()
+        # Smallest unit of NP: contains no NP as children (NP -> N is okay but not NP -> NP)
+        if Tree.label(tree_node) == 'NP':
+            smaller_NP = False
+            # Check children's label
+            for child in tree_node:
+                if Tree.label(child) == 'NP' and Tree.height(child) != 2:
+                    smaller_NP = True
+            # If no smaller NP node exists
+            if not smaller_NP:
+                result.append(tree_node)
+                # No need to do further search
+                continue
         # Could contains NP tree node with its subtrees
         if Tree.height(tree_node) > 2:
             for sub_tree in tree_node:
                 stack.append(sub_tree)
-        # Smallest unit of NP
-        elif Tree.height(tree_node) == 2 and Tree.label(tree_node) == 'NP':
-            result.append(tree_node)
+    # I used a depth first search on the most right element, so reverse the order will match the normal reading order (left to right)
+    result.reverse()
     return result
 
 
