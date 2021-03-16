@@ -86,23 +86,31 @@ def np_chunk(tree):
     whose label is "NP" that does not itself contain any other
     noun phrases as subtrees.
     """
-    result = [tree_node for tree_node in tree.subtrees(filter=filter)]
+    result = []
+    stack = [tree]
+    NP_chunk = []
+    # Loop through all tree nodes
+    while stack:
+        tree_node = stack.pop()
+        # Smallest unit of NP: contains no NP as children (NP -> N is okay but not NP -> NP)
+        if Tree.label(tree_node) == 'NP':
+            smaller_NP = False
+            # Check children's label
+            for child in tree_node:
+                if Tree.label(child) == 'NP' and Tree.height(child) != 2:
+                    smaller_NP = True
+            # If no smaller NP node exists
+            if not smaller_NP:
+                result.append(tree_node)
+                # No need to do further search
+                continue
+        # Could contains NP tree node with its subtrees
+        if Tree.height(tree_node) > 2:
+            for sub_tree in tree_node:
+                stack.append(sub_tree)
+    # I used a depth first search on the most right element, so reverse the order will match the normal reading order (left to right)
+    result.reverse()
     return result
-
-
-def filter(tree):
-    """
-    Return a subtree where it is a smallest noun chunk
-    """
-    # The tree node itself is a NP
-    if Tree.label(tree) == 'NP':
-        # The tree node contains NP and NP is equal to itself
-        if not tree.subtrees(lambda t: Tree.label(t) == 'NP' and t != tree):
-            return True
-        else:
-            return False
-    else:
-        return False
 
 if __name__ == "__main__":
     main()
