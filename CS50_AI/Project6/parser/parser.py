@@ -20,7 +20,7 @@ S -> NP | NP VP | S Conj S
 AP -> Adj | Adv
 NP -> N | Det NP | AP NP | NP PP | NP AP
 PP -> P NP
-VP -> V | V NP | V PP | AP VP
+VP -> V | V NP | V PP | AP VP | VP AP | VP Conj VP
 """
 
 grammar = nltk.CFG.fromstring(NONTERMINALS + TERMINALS)
@@ -88,6 +88,7 @@ def np_chunk(tree):
     """
     result = []
     stack = [tree]
+    NP_chunk = []
     # Loop through all tree nodes
     while stack:
         tree_node = stack.pop()
@@ -96,10 +97,18 @@ def np_chunk(tree):
             smaller_NP = False
             # Check children's label
             for child in tree_node:
-                if Tree.label(child) == 'NP' and Tree.height(child) != 2:
+                label = Tree.label(child)
+                # Keep all AP and Det since they can form a whole NP chunk
+                if label == 'AP' or label == 'Det':
+                    NP_chunk.append(child)
+                # Stop at a noun
+                elif label == 'NP' and Tree.height(child) != 2:
                     smaller_NP = True
             # If no smaller NP node exists
             if not smaller_NP:
+                # If there is more parts to be added to the NP chunk
+                if NP_chunk:
+                    
                 result.append(tree_node)
                 # No need to do further search
                 continue
