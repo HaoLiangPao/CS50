@@ -6,7 +6,7 @@ import string
 import math
 from collections import Counter
 
-FILE_MATCHES = 1
+FILE_MATCHES = 4
 SENTENCE_MATCHES = 1
 
 
@@ -88,7 +88,6 @@ def tokenize(document):
     return result
 
 
-
 def compute_idfs(documents):
     """
     Given a dictionary of `documents` that maps names of documents to a list
@@ -144,19 +143,24 @@ def top_sentences(query, sentences, idfs, n):
     the query, ranked according to idf. If there are ties, preference should
     be given to sentences that have a higher query term density.
     """
-    sent_idfs = []
+    sent_idfs = {}
     for sentence in sentences:
         query_word_count, sum_idf = 0, 0
         for word in query:
             if word in sentences[sentence]:
                 # Count the times a query word appears in the sentence
-                query_word_count += 1
+                query_word_count += sentences[sentence].count(word)
                 # Count the total idf for a sentence
                 sum_idf += idfs[word]
         query_term_density = query_word_count / len(sentences[sentence])
-        sent_idfs.append([sentence, sum_idf, query_term_density])
+        sent_idfs[sentence] = (sum_idf, query_term_density)
+
+    print(sent_idfs["How information is coded by real neurons is not known."])
+    print(sent_idfs["Neurons of one layer connect only to neurons of the immediately preceding and immediately following layers."])
+
+    
     # Sort answers by sum_idf first, when draw, sort them on query term density
-    return [sentence for sentence, sum_idf, qtd in sorted(sent_idfs, key=lambda item: (item[1], item[2]), reverse=True)][:n]
+    return [key for key, value in sorted(sent_idfs.items(), key=lambda item: (item[1][0], item[1][1]), reverse=True)][:n]
 
 
 if __name__ == "__main__":
