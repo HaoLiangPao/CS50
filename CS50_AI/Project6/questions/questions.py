@@ -127,8 +127,10 @@ def top_files(query, files, idfs, n):
     for document in files:
         # Each word in the query contributes to the tf-idf
         for word in query:
+            # Only count the value of query words
             if word in document:
                 tf_idf[document] += files[document].count(word) * idfs[word]
+    # Sort the list by its tf_idf
     return sorted([document for document in tf_idf], key=lambda d: d[1], reverse=True)
 
 
@@ -141,8 +143,23 @@ def top_sentences(query, sentences, idfs, n):
     the query, ranked according to idf. If there are ties, preference should
     be given to sentences that have a higher query term density.
     """
-    raise NotImplementedError
-
+    sent_idf = {
+        # Sentence: (sum_idf, query_term_density)
+        sentence : (0,0) for sentence in sentences
+    }
+    for sentence in sentences:
+        query_word_count = 0
+        sum_idf = 0
+        for word in query:
+            if word in sentences[sentence]:
+                # Count the times a query word appears in the sentence
+                query_word_count += 1
+                # Count the total idf for a sentence
+                sum_idf += idfs[word]
+        query_term_density = query_word_count / len(sentences[sentence])
+        sent_idf[sentence] = (sum_idf, query_term_density)
+    # Sort the sentences by sum_idf first, if equal, sort them by query term density
+    return sorted([sentence for sentence in sent_idf], key=lambda s: (s[1][0], s[1][0]), reverse=True)
 
 if __name__ == "__main__":
     main()
