@@ -101,13 +101,13 @@ def compute_idfs(documents):
     # Grab words from each documents
     for document in documents:
         # Get each individual words
-        for word in document:
+        for word in documents[document]:
             # Only create key-value pairs for each word once
             if word not in idf_map:
                 count = 0
                 # Check existence of a word in other documents
                 for other_d in documents:
-                    if word in other_d:
+                    if word in documents[other_d]:
                         count += 1
                 # Calculating a idf value for the word
                 idf_map[word] = math.log(total / count)
@@ -121,7 +121,16 @@ def top_files(query, files, idfs, n):
     to their IDF values), return a list of the filenames of the the `n` top
     files that match the query, ranked according to tf-idf.
     """
-    raise NotImplementedError
+    tf_idf = {
+        document : 0 for document in files
+    }
+    for document in files:
+        # Each word in the query contributes to the tf-idf
+        for word in query:
+            if word in document:
+                tf_idf[document] += files[document].count(word) * idfs[word]
+    return sorted([document for document in tf_idf], key=lambda d: d[1], reverse=True)
+
 
 
 def top_sentences(query, sentences, idfs, n):
