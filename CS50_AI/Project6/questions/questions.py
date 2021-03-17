@@ -129,7 +129,7 @@ def top_files(query, files, idfs, n):
         for word in query:
             tf_idf[document] += files[document].count(word) * idfs[word]
 
-    print([key for key, value in sorted(tf_idf.items(), key=lambda d: d[1], reverse=True)])
+    # print([key for key, value in sorted(tf_idf.items(), key=lambda d: d[1], reverse=True)])
     # Sort the list by its tf_idf
     return [key for key, value in sorted(tf_idf.items(), key=lambda d: d[1], reverse=True)][:n]
 
@@ -155,10 +155,6 @@ def top_sentences(query, sentences, idfs, n):
         query_term_density = query_word_count / len(sentences[sentence])
         sent_idfs[sentence] = (sum_idf, query_term_density)
 
-    print(sent_idfs["How information is coded by real neurons is not known."])
-    print(sent_idfs["Neurons of one layer connect only to neurons of the immediately preceding and immediately following layers."])
-
-    
     # Sort answers by sum_idf first, when draw, sort them on query term density
     return [key for key, value in sorted(sent_idfs.items(), key=lambda item: (item[1][0], item[1][1]), reverse=True)][:n]
 
