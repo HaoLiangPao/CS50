@@ -3,6 +3,8 @@ import sys
 import os
 import re
 import string
+import math
+from collections import Counter
 
 FILE_MATCHES = 1
 SENTENCE_MATCHES = 1
@@ -94,7 +96,22 @@ def compute_idfs(documents):
     Any word that appears in at least one of the documents should be in the
     resulting dictionary.
     """
-    raise NotImplementedError
+    total = len(documents)
+    idf_map = {}
+    # Grab words from each documents
+    for document in documents:
+        # Get each individual words
+        for word in document:
+            # Only create key-value pairs for each word once
+            if word not in idf_map:
+                count = 0
+                # Check existence of a word in other documents
+                for other_d in documents:
+                    if word in other_d:
+                        count += 1
+                # Calculating a idf value for the word
+                idf_map[word] = math.log(total / count)
+    return idf_map
 
 
 def top_files(query, files, idfs, n):
