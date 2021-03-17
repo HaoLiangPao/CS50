@@ -65,6 +65,28 @@ def load_files(directory):
     return files
 
 
+# def tokenize(document):
+#     """
+#     Given a document (represented as a string), return a list of all of the
+#     words in that document, in order.
+
+#     Process document by coverting all words to lowercase, and removing any
+#     punctuation or English stopwords.
+#     """
+#     result = []
+#     # Tokenize
+#     tokens = nltk.word_tokenize(document)
+#     for token in tokens:
+#         # 1. Not stopwords
+#         if token not in nltk.corpus.stopwords.words('english'):
+#             # 2. Remove punctuation symbols
+#             for symbol in string.punctuation:
+#                 token = token.replace(symbol, '')
+#             # 3. Kept the lowercase version of each token
+#             if len(token) > 0:
+#                 result.append(token.lower())
+#     return result
+
 def tokenize(document):
     """
     Given a document (represented as a string), return a list of all of the
@@ -73,20 +95,42 @@ def tokenize(document):
     Process document by coverting all words to lowercase, and removing any
     punctuation or English stopwords.
     """
-    result = []
-    # Tokenize
-    tokens = nltk.word_tokenize(document)
-    for token in tokens:
-        # 1. Not stopwords
-        if token not in nltk.corpus.stopwords.words('english'):
-            # 2. Remove punctuation symbols
-            for symbol in string.punctuation:
-                token = token.replace(symbol, '')
-            # 3. Kept the lowercase version of each token
-            if len(token) > 0:
-                result.append(token.lower())
-    return result
+    words = nltk.word_tokenize(document)
 
+    return [
+        word.lower() for word in words
+        # Filter out any stopword
+        if word not in nltk.corpus.stopwords.words("english")
+        # Filter out any word that only contains punctuation symbols ('-', '--') but not ('self-driving')
+        and not all(char in string.punctuation for char in word)
+    ]
+
+
+
+# def compute_idfs(documents):
+#     """
+#     Given a dictionary of `documents` that maps names of documents to a list
+#     of words, return a dictionary that maps words to their IDF values.
+
+#     Any word that appears in at least one of the documents should be in the
+#     resulting dictionary.
+#     """
+#     total = len(documents)
+#     idf_map = {}
+#     # Grab words from each documents
+#     for document in documents:
+#         # Get each individual words
+#         for word in documents[document]:
+#             # Only create key-value pairs for each word once
+#             if word not in idf_map:
+#                 count = 0
+#                 # Check existence of a word in other documents
+#                 for other_d in documents:
+#                     if word in documents[other_d]:
+#                         count += 1
+#                 # Calculating a idf value for the word
+#                 idf_map[word] = math.log(total / count)
+#     return idf_map
 
 def compute_idfs(documents):
     """
@@ -96,22 +140,20 @@ def compute_idfs(documents):
     Any word that appears in at least one of the documents should be in the
     resulting dictionary.
     """
-    total = len(documents)
-    idf_map = {}
-    # Grab words from each documents
-    for document in documents:
-        # Get each individual words
-        for word in documents[document]:
-            # Only create key-value pairs for each word once
-            if word not in idf_map:
-                count = 0
-                # Check existence of a word in other documents
-                for other_d in documents:
-                    if word in documents[other_d]:
-                        count += 1
-                # Calculating a idf value for the word
-                idf_map[word] = math.log(total / count)
-    return idf_map
+    counts = dict()
+
+    for filename in documents:
+        seen_words = set()
+
+        for word in documents[filename]:
+            if word not in seen_words:
+                seen_words.add(word)
+                try:
+                    counts[word] += 1
+                except KeyError:
+                    counts[word] = 1
+
+    return {word: math.log(len(documents) / counts[word]) for word in counts}
 
 
 def top_files(query, files, idfs, n):
@@ -127,11 +169,9 @@ def top_files(query, files, idfs, n):
     for document in files:
         # Each word in the query contributes to the tf-idf
         for word in query:
-            # Only count the value of query words
-            if word in document:
-                tf_idf[document] += files[document].count(word) * idfs[word]
+            tf_idf[document] += files[document].count(word) * idfs[word]
     # Sort the list by its tf_idf
-    return sorted([document for document in tf_idf], key=lambda d: d[1], reverse=True)
+    return sorted([document for document in tf_idf], key=lambda d: d[1], reverse=True)[:n]
 
 
 
@@ -143,13 +183,9 @@ def top_sentences(query, sentences, idfs, n):
     the query, ranked according to idf. If there are ties, preference should
     be given to sentences that have a higher query term density.
     """
-    sent_idf = {
-        # Sentence: (sum_idf, query_term_density)
-        sentence : (0,0) for sentence in sentences
-    }
+    sent_idfs = []
     for sentence in sentences:
-        query_word_count = 0
-        sum_idf = 0
+        query_word_count, sum_idf = 0, 0
         for word in query:
             if word in sentences[sentence]:
                 # Count the times a query word appears in the sentence
@@ -157,9 +193,23 @@ def top_sentences(query, sentences, idfs, n):
                 # Count the total idf for a sentence
                 sum_idf += idfs[word]
         query_term_density = query_word_count / len(sentences[sentence])
-        sent_idf[sentence] = (sum_idf, query_term_density)
+        sent_idfs.append([sentence, sum_idf, query_term_density])
+    
+    for sent in sent_idfs:
+        if sent[0] == "Python 3.0 was released on 3 December 2008.":
+            print(sent)
+        elif sent[0] == "Python is dynamically typed and garbage-collected.":
+            print(sent)
+    # print(sent_idfs["Python 3.0 was released on 3 December 2008."])
+    # print(sent_idfs["Python is dynamically typed and garbage-collected."])
     # Sort the sentences by sum_idf first, if equal, sort them by query term density
-    return sorted([sentence for sentence in sent_idf], key=lambda s: (s[1][0], s[1][0]), reverse=True)
+
+    print(sorted([sentence for sentence, sum_idf, qtd in sent_idfs], key=lambda item: (item[1], item[2]), reverse=True)[:5])
+
+    print([sentence for sentence, sum_idf, qtd in sorted(sent_idfs, key=lambda item: (item[1], item[2]), reverse=True)][:5])
+
+    return [sentence for sentence, sum_idf, qtd in sorted(sent_idfs, key=lambda item: (item[1], item[2]), reverse=True)][:n]
+
 
 if __name__ == "__main__":
     main()
