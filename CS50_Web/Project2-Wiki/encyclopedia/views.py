@@ -42,8 +42,7 @@ def search(request):
         print(f"Result options are: {result}")
         # Exact match
         if len(result) == 1:
-            # @TODO: how to use reverse so no need to change the url everywhere
-            # return HttpResponseRedirect(reverse("entry", args=(result[0]))
+            # Use reverse to go back to entry page with an argument of result[0]
             return HttpResponseRedirect(reverse("entry", args=(result[0],)))
         # More than one match / no match at all
         else:
@@ -78,7 +77,8 @@ def edit(request, title):
         createHelper(title, content, True)
         # Redirect to the entry page
         return HttpResponseRedirect(reverse("entry", args=(title,)))
-    entry = util.get_entry(title)
+    print(title)
+    entry = util.get_entry(title).strip()
     # Default info page
     return render(request, "encyclopedia/editEntry.html",{
         "title": title,
