@@ -145,12 +145,24 @@ def listing(request, id):
     # User placing a new bid
     if request.method == "POST":
         newBid = request.POST["newBid"]
+        print(f"New bid is: {newBid}")
         try:
+            print("Runs here")
             # 1. Find the highest bid so far
-            
-            # 2. If no bid has been placed so far, get the starting bid
-            listing = Auction.objects.get(id=newBid)
-            startBid = listing.start_bid
+            current_bids = Bid.objects.get(listing=id)
+            print(f"Highest bid is: {current_bids}")
+        except Bid.DoesNotExist:
+            try:
+                # 2. No bid has been placed so far, get the starting bid
+                listing = Auction.objects.get(id=id)
+                startBid = listing.start_bid
+                # A bid which is higher then the starting price can be placed
+                
+            except Auction.DoesNotExist:
+                print(f"Listing with id({id}) is not found.")
+                return render(request, "auctions/listing.html", {
+                    "message": "Listing Not Found"
+                })
 
     try:
         listing = Auction.objects.get(id=id)

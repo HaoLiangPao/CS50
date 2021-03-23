@@ -14,7 +14,8 @@
         <h3>$ {{ listing.start_bid }}</h3>
         {% if login %}
             <p>2 bid(s) so far. Your bid is the current bid.</p>
-            <form action="{ url 'listing' % listing.id}" method="post" id="create_bid">
+            <form action="{% url 'listing' id=listing.id %}" method="post" id="create_bid">
+                {% csrf_token %}
                 <input type="number" name="newBid" placeholder="New Bid" class="form-group">
                 <input type="submit" value="Place Bid" class="btn btn-primary">
             </form>
