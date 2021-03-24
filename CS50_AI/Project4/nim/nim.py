@@ -124,7 +124,7 @@ class NimAI():
         """
         state, action = tuple(state), tuple(action)
         # What is the current reward?
-        self.q[(state, action)] = old_q + self.alpha * (future_rewards - old_q)
+        self.q[(state, action)] = old_q + self.alpha * (reward + future_rewards - old_q)
 
     def best_future_reward(self, state):
         """
