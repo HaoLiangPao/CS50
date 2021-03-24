@@ -70,15 +70,17 @@ knowledge3 = And(
     # 2, 3
     Implication(BKnight,
                 And(
-                    Implication(AKnight, BKnave),
-                    Implication(AKnave, Not(BKnave)),
+                    # 2
+                    Implication(AKnight, AKnave),
+                    Implication(AKnave, Not(AKnave)),
+                    # 3
                     CKnave
                 )
                 ),
     Implication(BKnave,
                 And(
-                    Implication(AKnight, Not(BKnave)),
-                    Implication(AKnave, Not(Not(BKnave))),
+                    Implication(AKnight, Not(AKnave)),
+                    Implication(AKnave, Not(Not(AKnave))),
                     Not(CKnave)
                 )
                 ),
