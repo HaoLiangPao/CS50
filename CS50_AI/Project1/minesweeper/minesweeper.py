@@ -302,7 +302,7 @@ class MinesweeperAI():
             for column in range(self.width):
                 move = (row, column)
                 if (move not in self.moves_made) and (move not in self.mines) and (move in self.safes):
-                    print(f"Save move been took: {move}")
+                    # print(f"Save move been took: {move}")
                     return move
         return None
 
@@ -317,6 +317,6 @@ class MinesweeperAI():
             for column in range(self.width):
                 move = (row, column)
                 if move not in self.moves_made and move not in self.mines:
-                    print(f"Random move been took: {move}")
+                    # print(f"Random move been took: {move}")
                     return move
         return None
