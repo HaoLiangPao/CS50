@@ -6,12 +6,10 @@ def my_default():
     return [-1]
 
 class User(AbstractUser):
-    # Array of auction objects
+    # Array of auction objects' id
     auctions = models.JSONField(default=my_default)
-    # Array of bid objects
-    bids = models.JSONField(default=my_default)
-    # Array of comments objects (string)
-    comments = models.JSONField(default=my_default)
+    # Array of bid objects' id
+    watchList = models.JSONField(default=my_default)
 
 
 class Auction(models.Model):
@@ -22,7 +20,7 @@ class Auction(models.Model):
     created = models.CharField(max_length=26)
 
     def __str__(self):
-        return f"listing{self.id}: \ntitle({self.title})\n start_bid({self.start_bid}"
+        return f"listing({self.id})\n title({self.title})\n description({self.description})\n start_bid({self.start_bid}"
 
 
 class Comment(models.Model):
@@ -31,7 +29,7 @@ class Comment(models.Model):
     listing = models.IntegerField()
     content = models.TextField()
     def __str__(self):
-        return f"comment{self.id}: \nlisting({self.listing})\n content({self.content}"
+        return f"comment{self.id}: \n user({self.user}) \n listing({self.listing})\n content({self.content}"
 
 
 class Bid(models.Model):
@@ -41,4 +39,4 @@ class Bid(models.Model):
     new_bid = models.FloatField()
 
     def __str__(self):
-        return f"bid{self.id}: \nlisting({self.listing})\n new_bid({self.content}"
+        return f"bid{self.id}: \n user({self.user})\n listing({self.listing})\n new_bid({self.new_bid}"

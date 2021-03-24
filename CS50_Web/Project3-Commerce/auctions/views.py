@@ -141,10 +141,10 @@ def create(request):
     return render(request, "auctions/create.html")
 
 
-def listing(request, id):
+def listing(request, id, message=None, owner=None):
     # User placing a new bid
     if request.method == "POST":
-        newBid = request.POST["newBid"]
+        newBid = float(request.POST["newBid"])
         print(f"New bid is: {newBid}")
         try:
             print("Runs here")
@@ -156,8 +156,17 @@ def listing(request, id):
                 # 2. No bid has been placed so far, get the starting bid
                 listing = Auction.objects.get(id=id)
                 startBid = listing.start_bid
-                # A bid which is higher then the starting price can be placed
-                
+                # A bid which is higher than the starting price can be placed
+                if newBid < startBid:
+                    # "Bidding price must be at leaset as large as the starting bid"
+                    message = "Lower than start"
+                    return HttpResponseRedirect(reverse("listing_message", args=(id, message, )))
+                # Place the bid
+                else:
+                    Bid.objects.create(user=request.user.id, listing=id, new_bid=newBid)
+                    # "You have successfully placed a bid"
+                    message = "Success"
+                    return HttpResponseRedirect(reverse("listing_message", args=(id, message, )))
             except Auction.DoesNotExist:
                 print(f"Listing with id({id}) is not found.")
                 return render(request, "auctions/listing.html", {
@@ -166,11 +175,41 @@ def listing(request, id):
 
     try:
         listing = Auction.objects.get(id=id)
+        print(listing)
         # Show different content to logged in user and non-logged in user
-        loginStatus = True if request.user else False
+        loginStatus = True if request.user.is_authenticated else False
+        
+        # 1. For all users (#bids, highest_bid)
+        # bids = Bid.objects.filter(listing=id)
+        bids = Bid.objects.all().filter(listing=id)
+        number_bids = len(bids)
+        if number_bids > 0:
+            highest_bid = max(bids, key=lambda bid: bid.new_bid)
+            current_bid_price = highest_bid.new_bid
+            # Current user has the highest bid currently or not
+            if highest_bid.user == request.user.id:
+                bid_message = "Your bid is the current bid."
+        # No bids been placed so far
+        else:
+            current_bid_price = listing.start_bid
+            bid_message = "No bid been placed yet"
+
+        # 2. For login users (bid_message, watchlist)
+        # Current user have added it to watchlist or not
+        user = User.objects.get(id=request.user.id)
+        inWatchlist = True if id in user.watchList else False
+
+        # 3. For login uses + owner of the listing (close bid)
+        owner = user if id in user.auctions else None
         return render(request, "auctions/listing.html", {
             "listing": listing,
-            "login": loginStatus
+            "login": loginStatus,
+            "message": message,
+            "number_bids": number_bids,
+            "current_bid": current_bid_price,
+            "bid_message": bid_message,
+            "inWatchlist": inWatchlist,
+            "owner": owner
         })
     except Auction.DoesNotExist:
         print(f"Listing with id({id}) is not found.")

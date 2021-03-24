@@ -1,30 +1,50 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-
-    {% if message %}
-    <div>{{ message }}</div>
+    <h2>Listings {{ listing.title }}</h2>
+    <!-- If the listing is already in the watchlist -->
+    {% if inWatchlist %}
+        <span class="badge badge-primary">Watchlist</span>
+        <br>
+    <!-- If the listing in not in the watchlist -->
     {% else %}
-        <h2>Listings {{ listing.title }}</h2>
-        {% if login %}
-            <!-- Tag: (watchList) -->
-        {% endif %}
-        <img src="{{ auction.image }}" alt="Listing Image">
-        <p>{{ listing.description }}</p>
-        <h3>$ {{ listing.start_bid }}</h3>
-        {% if login %}
-            <p>2 bid(s) so far. Your bid is the current bid.</p>
-            <form action="{% url 'listing' id=listing.id %}" method="post" id="create_bid">
-                {% csrf_token %}
-                <input type="number" name="newBid" placeholder="New Bid" class="form-group">
-                <input type="submit" value="Place Bid" class="btn btn-primary">
-            </form>
-        {% endif %}
-        <h4>Details</h4>
-        <ul>
-            <li>Listed by: harry</li>
-            <li>Category: No Category Listed</li>
-        </ul>
+        <span class="badge badge-secondary">Watchlist</span>
+        <br>
     {% endif %}
+    <img src="{{ auction.image }}" alt="Listing Image">
+    <p>{{ listing.description }}</p>
+    <h3>$ {{ current_bid }}</h3>
+    <!-- Only login user can place a bid or close a bid -->
+    {% if login %}
+        <p>{{ number_bids }} bid(s) so far. {{ bid_message }}</p>
+        <!-- For owner of the listing -->
+        {% if owner %}
+            <form action="{% url 'listing_owner' id=listing.id %}" method="post" id="close_bid">
+                {% csrf_token %}
+                <input type="submit" value="Close Bid" class="btn btn-primary">
+            </form>
+        {% else %}
+            <!-- For user who is not the owner of the listing -->
+            {% if message == "Lower than start" %}
+                <div class="alert alert-danger" role="alert">
+                    Bidding price must be at leaset as large as the starting bid
+                </div>
+            {% elif message == "Success"%}
+                <div class="alert alert-success" role="alert">
+                    You have successfully placed a bid
+                </div>
+            {% endif %}
+        {% endif %}
+        <form action="{% url 'listing' id=listing.id %}" method="post" id="create_bid">
+            {% csrf_token %}
+            <input type="number" name="newBid" placeholder="New Bid" class="form-group">
+            <input type="submit" value="Place Bid" class="btn btn-primary">
+        </form>
+    {% endif %}
+    <h4>Details</h4>
+    <ul>
+        <li>Listed by: {{ user.username }}</li>
+        <li>Category: No Category Listed</li>
+    </ul>
 
 {% endblock %}
