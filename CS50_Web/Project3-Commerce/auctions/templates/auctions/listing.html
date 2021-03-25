@@ -19,7 +19,7 @@
         <p>{{ number_bids }} bid(s) so far. {{ bid_message }}</p>
         <!-- For owner of the listing -->
         {% if ownerLogin %}
-            <form action="{% url 'listing' id=listing.id %}" method="post" id="close_bid">
+            <form action="{% url 'listing_owner' id=listing.id message=1 owner=owner.id %}" method="post" id="close_bid">
                 {% csrf_token %}
                 <input type="submit" value="Close Bid" class="btn btn-primary">
             </form>

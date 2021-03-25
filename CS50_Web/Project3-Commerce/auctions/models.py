@@ -11,6 +11,8 @@ class User(AbstractUser):
     # Array of bid objects' id
     watchList = models.JSONField(default=my_default)
 
+    def __str__(self):
+            return f"user({self.id})\n auctions({self.auctions})\n watchList({self.watchList})\n"
 
 class Auction(models.Model):
     title = models.CharField(max_length=64)

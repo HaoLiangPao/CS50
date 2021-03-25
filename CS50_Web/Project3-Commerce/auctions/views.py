@@ -164,7 +164,6 @@ def categories(request):
 def category(request, category):
     categoryId = Category.objects.get(category=category).id
     auc_cate_pairs = Auction_Category.objects.filter(category_id=categoryId)
-    print(auc_cate_pairs)
     auctions = []
     for pair in auc_cate_pairs:
         auction = Auction.objects.get(id=pair.listing_id)
@@ -179,7 +178,21 @@ def listing(request, id, message=None, owner=None):
     if request.method == "POST":
         # 1. Closing a bid by its owner
         if owner:
-            return HttpResponseRedirect(reverse("listing", args=(id, )))
+            print("Owner closing the bid")
+            # @TODO: Actual closing bid actions
+            user = User.objects.get(id=owner)
+            # 1. Remove the auction from the user's auction list
+            auctions = user.auctions
+            auctions.pop(auctions.index(id))
+            user.auctions = auctions
+            user.save()
+            # 2. Remove the auction from the Auction table
+            Auction.objects.filter(id=id).delete()
+            # 3. Remove the auction from the bid table
+            Bid.objects.filter(listing=id).delete()
+            # 4. Remove the auction from the auction_category table
+            Auction_Category.objects.filter(listing_id=id).delete()
+            return HttpResponseRedirect(reverse("index"))
         # 2. Placing a new bid
         else:
             newBid = float(request.POST["newBid"])
