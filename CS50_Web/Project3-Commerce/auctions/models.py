@@ -28,7 +28,7 @@ class Auction_Category(models.Model):
     category_id = models.IntegerField()
 
     def __str__(self):
-        return f"auction_category({self.id})\n liting_id({self.listing_id})\n category_id({self.category_id})\n"
+        return f"auction_category({self.id})\n listing_id({self.listing_id})\n category_id({self.category_id})\n"
 
 class Category(models.Model):
     # a user place a new bid on a listing

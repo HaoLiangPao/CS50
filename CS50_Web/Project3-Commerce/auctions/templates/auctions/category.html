@@ -1,0 +1,34 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    {% if message %}
+        <div>{{ message }}</div>
+    {% else %}
+        <h2>{{ category }}</h2>
+        <ul>
+            {% for auction in auctions %}
+                <li>
+                    <ul>
+                        <li>
+                            <h1>
+                                <a href="{% url 'listing' auction.id %}">{{ auction.title }}</a>
+                            </h1>
+                        </li>
+                        <li>
+                            {{ auction.start_bid }}
+                        </li>
+                        <li>
+                            {{ auction.created }}
+                        </li>
+                    </ul>
+                    <img src="{{ auction.image }}" alt="Listing Image">
+                    
+                </li>
+            {% endfor %}
+        </ul>
+
+    {% endif %}
+
+
+{% endblock %}

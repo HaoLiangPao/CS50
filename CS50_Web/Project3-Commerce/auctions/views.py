@@ -148,6 +148,32 @@ def create(request):
     })
 
 
+def categories(request):
+    categories = Category.objects.all() if Category.objects.all() else None
+    cates_count = []
+    for category in categories:
+        cate = {
+            "name": category.category,
+            "count": len(Auction_Category.objects.filter(category_id=category.id))
+        }
+        cates_count.append(cate)
+    return render(request, "auctions/categories.html", {
+        "categories": cates_count
+    })
+
+def category(request, category):
+    categoryId = Category.objects.get(category=category).id
+    auc_cate_pairs = Auction_Category.objects.filter(category_id=categoryId)
+    print(auc_cate_pairs)
+    auctions = []
+    for pair in auc_cate_pairs:
+        auction = Auction.objects.get(id=pair.listing_id)
+        auctions.append(auction)
+    return render(request, "auctions/category.html", {
+        "category": category,
+        "auctions": auctions
+    })
+
 def listing(request, id, message=None, owner=None):
     # Two forms handling for POST method
     if request.method == "POST":
