@@ -17,7 +17,8 @@ class Auction(models.Model):
     description = models.TextField()
     start_bid = models.FloatField()
     image = models.URLField()
-    created = models.CharField(max_length=26)
+    createdAt = models.CharField(max_length=26)
+    createdBy = models.IntegerField()
 
     def __str__(self):
         return f"listing({self.id})\n title({self.title})\n description({self.description})\n start_bid({self.start_bid}"

@@ -18,8 +18,8 @@
     {% if login %}
         <p>{{ number_bids }} bid(s) so far. {{ bid_message }}</p>
         <!-- For owner of the listing -->
-        {% if owner %}
-            <form action="{% url 'listing_owner' id=listing.id %}" method="post" id="close_bid">
+        {% if ownerLogin %}
+            <form action="{% url 'listing' id=listing.id %}" method="post" id="close_bid">
                 {% csrf_token %}
                 <input type="submit" value="Close Bid" class="btn btn-primary">
             </form>
@@ -34,16 +34,16 @@
                     You have successfully placed a bid
                 </div>
             {% endif %}
+            <form action="{% url 'listing' id=listing.id %}" method="post" id="create_bid">
+                {% csrf_token %}
+                <input type="number" name="newBid" placeholder="New Bid" class="form-group">
+                <input type="submit" value="Place Bid" class="btn btn-primary">
+            </form>
         {% endif %}
-        <form action="{% url 'listing' id=listing.id %}" method="post" id="create_bid">
-            {% csrf_token %}
-            <input type="number" name="newBid" placeholder="New Bid" class="form-group">
-            <input type="submit" value="Place Bid" class="btn btn-primary">
-        </form>
     {% endif %}
     <h4>Details</h4>
     <ul>
-        <li>Listed by: {{ user.username }}</li>
+        <li>Listed by: {{ owner.username }}</li>
         <li>Category: No Category Listed</li>
     </ul>
 

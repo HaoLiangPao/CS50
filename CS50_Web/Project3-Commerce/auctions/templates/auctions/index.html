@@ -37,7 +37,7 @@
                     <ul>
                         <li>
                             <h1>
-                                <a href="/index">{{ auction.title }}</a>
+                                <a href="{% url 'listing' auction.id %}">{{ auction.title }}</a>
                             </h1>
                         </li>
                         <li>
