@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from datetime import datetime
 
-from .models import User, Auction, Comment, Bid
+from .models import *
 
 def index(request):
     # Get all active listing
@@ -102,6 +102,7 @@ def create(request):
         start_bid = request.POST["bid"]
         image_url = request.POST["image"] if request.POST["image"] else " "
         description = request.POST["description"]
+        category = request.POST["category"]
         # Get created time
         # Create a date string with a certain standard
         now = datetime.now()
@@ -117,7 +118,7 @@ def create(request):
         # Check for missing value
         if title and start_bid and description and image_url and time:
             # Create auction listing
-            auction = Auction(title=title, description=description, start_bid=start_bid, image=image_url, created=time)
+            auction = Auction(title=title, description=description, start_bid=start_bid, image=image_url, createdAt=time, createdBy=request.user.id)
             # 1. Save it to the auction table
             auction.save()
             # 2. Update user record
@@ -130,14 +131,21 @@ def create(request):
             else:
                 current_user.auctions = current_user.auctions + [auction.id]
             current_user.save()
+            # @TODO: If a new category been added
+            # 3. Add category relation with listing
+            auction_category = Auction_Category(listing_id=auction.id, category_id=Category.objects.get(category=category).id)
+            auction_category.save()
             return HttpResponseRedirect(reverse("index"))
         # If missing value
         else:
             return render(request, "auctions/create.html", {
                 "message" : "Please fill in all the blanks except image URL."
             })
-    # Normal case
-    return render(request, "auctions/create.html")
+    # Normal case (all possible categories)
+    categories = Category.objects.all()
+    return render(request, "auctions/create.html", {
+        "categories": categories
+    })
 
 
 def listing(request, id, message=None, owner=None):
@@ -185,10 +193,11 @@ def listing(request, id, message=None, owner=None):
         # Show different content to logged in user and non-logged in user
         loginStatus = True if request.user.is_authenticated else False
         
-        # 1. For all users (#bids, highest_bid, owner)
+        # 1. For all users (#bids, highest_bid, owner, category)
         bids = Bid.objects.all().filter(listing=id)
         number_bids = len(bids)
         owner = User.objects.get(id=listing.createdBy)
+        category = Category.objects.get(id=Auction_Category.objects.get(listing_id=id).category_id).category
         if number_bids > 0:
             highest_bid = max(bids, key=lambda bid: bid.new_bid)
             current_bid_price = highest_bid.new_bid
@@ -216,7 +225,8 @@ def listing(request, id, message=None, owner=None):
             "bid_message": bid_message,
             "inWatchlist": inWatchlist,
             "ownerLogin": ownerLogin,
-            "owner": owner
+            "owner": owner,
+            "category": category
         })
     except Auction.DoesNotExist:
         print(f"Listing with id({id}) is not found.")

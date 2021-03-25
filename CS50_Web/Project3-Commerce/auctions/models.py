@@ -23,6 +23,19 @@ class Auction(models.Model):
     def __str__(self):
         return f"listing({self.id})\n title({self.title})\n description({self.description})\n start_bid({self.start_bid}"
 
+class Auction_Category(models.Model):
+    listing_id = models.IntegerField()
+    category_id = models.IntegerField()
+
+    def __str__(self):
+        return f"auction_category({self.id})\n liting_id({self.listing_id})\n category_id({self.category_id})\n"
+
+class Category(models.Model):
+    # a user place a new bid on a listing
+    category = models.CharField(max_length=64)
+
+    def __str__(self):
+        return f"category{self.id}: \n category({self.category}"
 
 class Comment(models.Model):
     # A user makes a comment on a listing
