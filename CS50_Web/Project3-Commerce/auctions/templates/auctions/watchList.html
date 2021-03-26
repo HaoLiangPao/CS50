@@ -5,29 +5,28 @@
     {% if message %}
         <div>{{ message }}</div>
     {% else %}
-        <h2>{{ category }}</h2>
+        <h2>{{ userName }}'s Watch List</h2>
         <ul>
-            {% for auction in auctions %}
+            {% for listing in watchList %}
                 <li>
                     <ul>
                         <li>
                             <h1>
-                                <a href="{% url 'listing' auction.id %}">{{ auction.title }}</a>
+                                <a href="{% url 'listing' listing.id %}">{{ listing.title }}</a>
                             </h1>
                         </li>
                         <li>
-                            {{ auction.start_bid }}
+                            {{ listing.start_bid }}
                         </li>
                         <li>
-                            {{ auction.createdAt }}
+                            {{ listing.created }}
                         </li>
                     </ul>
-                    <img src="{{ auction.image }}" alt="Listing Image">
+                    <img src="{{ listing.image }}" alt="Listing Image">
                     
                 </li>
             {% endfor %}
         </ul>
-
     {% endif %}
 
 

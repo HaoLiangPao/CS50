@@ -9,9 +9,9 @@
         <ul>
             {% for cate in categories %}
                 <li>
-                    <h1>
+                    <h3>
                         <a href="{% url 'category' cate.name %}">{{ cate.name }}({{ cate.count }})</a>
-                    </h1>
+                    </h3>
                 </li>
             {% endfor %}
         </ul>

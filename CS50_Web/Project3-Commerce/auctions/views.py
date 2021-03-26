@@ -53,11 +53,9 @@ def login_view(request):
     else:
         return render(request, "auctions/login.html")
 
-
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
-
 
 def register(request):
     if request.method == "POST":
@@ -85,13 +83,19 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
-def categories(request):
-    logout(request)
-    return HttpResponseRedirect(reverse("index"))
-
+@login_required(redirect_field_name="my_redirect_field", login_url="/login")
 def watchList(request):
-    logout(request)
-    return HttpResponseRedirect(reverse("index"))
+    user_id = request.user.id
+    user = User.objects.get(id=user_id)
+    watchList = user.watchList
+    # Empty check
+    if len(watchList) == 1 and watchList[0] == -1:
+        watchList = []
+    return render(request, "auctions/watchList.html", {
+        "watchList": watchList,
+        "userName": request.user.username
+        })
+
 
 @login_required(redirect_field_name="my_redirect_field", login_url="/login")
 def create(request):
@@ -146,7 +150,6 @@ def create(request):
     return render(request, "auctions/create.html", {
         "categories": categories
     })
-
 
 def categories(request):
     categories = Category.objects.all() if Category.objects.all() else None
