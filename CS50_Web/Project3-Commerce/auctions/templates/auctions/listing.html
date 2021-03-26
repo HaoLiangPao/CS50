@@ -33,12 +33,29 @@
                 <div class="alert alert-success" role="alert">
                     You have successfully placed a bid
                 </div>
+            {% elif message == "item added to your watchlist"%}
+                <div class="alert alert-success" role="alert">
+                    Item added to your watchlist
+                </div>
+            {% elif message == "item been removed from your watchlist"%}
+                <div class="alert alert-success" role="alert">
+                    Item been removed from your watchlist
+                </div>
             {% endif %}
             <form action="{% url 'listing' id=listing.id %}" method="post" id="create_bid">
                 {% csrf_token %}
                 <input type="number" name="newBid" placeholder="New Bid" class="form-group">
                 <input type="submit" value="Place Bid" class="btn btn-primary">
             </form>
+            <form action="{% url 'listing' id=listing.id %}" method="post" id="add_watchList">
+                {% csrf_token %}
+                {% if inWatchList %}
+                    <input type="submit" value="Remove from watchList" class="btn btn-outline-danger">
+                {% else %}
+                    <input type="submit" value="Add to watchList" class="btn btn-outline-primary">                    
+                {% endif %}
+            </form>
+            <br>
         {% endif %}
     {% endif %}
     <h4>Details</h4>
