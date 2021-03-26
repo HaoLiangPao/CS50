@@ -12,7 +12,7 @@ class User(AbstractUser):
     watchList = models.JSONField(default=my_default)
 
     def __str__(self):
-            return f"user({self.id})\n auctions({self.auctions})\n watchList({self.watchList})\n"
+            return f"{self.username}({self.id})"
 
 class Auction(models.Model):
     title = models.CharField(max_length=64)
@@ -20,17 +20,10 @@ class Auction(models.Model):
     start_bid = models.FloatField()
     image = models.URLField()
     createdAt = models.CharField(max_length=26)
-    createdBy = models.IntegerField()
+    createdBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owns")
 
     def __str__(self):
-        return f"listing({self.id})\n title({self.title})\n description({self.description})\n start_bid({self.start_bid}"
-
-class Auction_Category(models.Model):
-    listing_id = models.IntegerField()
-    category_id = models.IntegerField()
-
-    def __str__(self):
-        return f"auction_category({self.id})\n listing_id({self.listing_id})\n category_id({self.category_id})\n"
+        return f"{self.title} ({self.start_bid})"
 
 class Category(models.Model):
     # a user place a new bid on a listing
@@ -39,13 +32,20 @@ class Category(models.Model):
     def __str__(self):
         return f"category{self.id}: \n category({self.category}"
 
+class Auction_Category(models.Model):
+    listing_id = models.IntegerField()
+    category_id = models.IntegerField()
+
+    def __str__(self):
+        return f"listing_id({self.listing_id}) -> category({self.category_id})"
+
 class Comment(models.Model):
     # A user makes a comment on a listing
-    user = models.IntegerField()
-    listing = models.IntegerField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    listing = models.ForeignKey(Auction, on_delete=models.CASCADE)
     content = models.TextField()
     def __str__(self):
-        return f"comment{self.id}: \n user({self.user}) \n listing({self.listing})\n content({self.content}"
+        return f"user({self.user}) puts a new comment on listing({self.listing})"
 
 
 class Bid(models.Model):
@@ -55,4 +55,4 @@ class Bid(models.Model):
     new_bid = models.FloatField()
 
     def __str__(self):
-        return f"bid{self.id}: \n user({self.user})\n listing({self.listing})\n new_bid({self.new_bid}"
+        return f"user({self.user}) puts a new_bid({self.new_bid} on listing({self.listing})"

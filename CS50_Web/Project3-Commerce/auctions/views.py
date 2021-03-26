@@ -122,13 +122,11 @@ def create(request):
         # Check for missing value
         if title and start_bid and description and image_url and time:
             # Create auction listing
-            auction = Auction(title=title, description=description, start_bid=start_bid, image=image_url, createdAt=time, createdBy=request.user.id)
+            auction = Auction(title=title, description=description, start_bid=start_bid, image=image_url, createdAt=time, createdBy=request.user)
             # 1. Save it to the auction table
             auction.save()
             # 2. Update user record
-            userId = request.user.id
-            print(userId)
-            current_user = User.objects.get(id=userId)
+            current_user = request.user
             # Empty auction list
             if current_user.auctions[0] == -1:
                 current_user.auctions[0] = auction.id
@@ -168,9 +166,13 @@ def category(request, category):
     categoryId = Category.objects.get(category=category).id
     auc_cate_pairs = Auction_Category.objects.filter(category_id=categoryId)
     auctions = []
+    print(auctions)
+    print(auc_cate_pairs)
     for pair in auc_cate_pairs:
-        auction = Auction.objects.get(id=pair.listing_id)
-        auctions.append(auction)
+        print(pair.listing_id)
+        listing = Auction.objects.get(id=pair.listing_id)
+        auctions.append(listing)
+    print(auctions)
     return render(request, "auctions/category.html", {
         "category": category,
         "auctions": auctions
@@ -238,7 +240,7 @@ def listing(request, id, message=None, owner=None):
         # 1. For all users (#bids, highest_bid, owner, category)
         bids = Bid.objects.all().filter(listing=id)
         number_bids = len(bids)
-        owner = User.objects.get(id=listing.createdBy)
+        owner = listing.createdBy
         category = Category.objects.get(id=Auction_Category.objects.get(listing_id=id).category_id).category
         if number_bids > 0:
             highest_bid = max(bids, key=lambda bid: bid.new_bid)
