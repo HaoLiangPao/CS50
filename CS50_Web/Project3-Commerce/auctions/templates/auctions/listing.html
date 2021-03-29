@@ -2,16 +2,14 @@
 
 {% block body %}
     <h2>Listings {{ listing.title }}</h2>
-    <!-- If the listing is already in the watchlist -->
-    {% if inWatchlist %}
+    {% if inWatchList %}
         <span class="badge badge-primary">Watchlist</span>
         <br>
-    <!-- If the listing in not in the watchlist -->
     {% else %}
         <span class="badge badge-secondary">Watchlist</span>
         <br>
     {% endif %}
-    <img src="{{ auction.image }}" alt="Listing Image">
+    <img src="{{ listing.image }}" alt="Listing Image">
     <p>{{ listing.description }}</p>
     <h3>$ {{ current_bid }}</h3>
     <!-- Only login user can place a bid or close a bid -->
@@ -41,6 +39,10 @@
                 <div class="alert alert-success" role="alert">
                     Item been removed from your watchlist
                 </div>
+            {% elif message == "Comment added"%}
+                <div class="alert alert-success" role="alert">
+                    Comment added
+                </div>
             {% endif %}
             <form action="{% url 'listing' id=listing.id %}" method="post" id="create_bid">
                 {% csrf_token %}
@@ -58,10 +60,29 @@
             <br>
         {% endif %}
     {% endif %}
+    <br>
     <h4>Details</h4>
     <ul>
         <li>Listed by: {{ owner.username }}</li>
         <li>Category: {{ category }}</li>
     </ul>
+    <br>
+    {% if comments %}
+        <h4>Comments</h4>
+        <ul>
+            {% for comment in comments.all %}
+                <li>
+                    {{ comment.user.username}} : {{ comment.content }}
+                </li>
+            {% empty %}
+                No comments yet...
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <textarea name="comment" id="" cols="30" rows="10" form="add_comment" placeholder="Enter text here..."></textarea>
+    <form action="{% url 'listing_comment' id=listing.id message=0 owner=0 comment=1 %}" method="post" id="add_comment">
+        {% csrf_token %}
+        <input type="submit" value="Add comment" class="btn btn-outline-primary">
+    </form>
 
 {% endblock %}

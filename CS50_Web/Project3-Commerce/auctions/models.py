@@ -42,8 +42,8 @@ class Auction_Category(models.Model):
 
 class Comment(models.Model):
     # A user makes a comment on a listing
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    listing = models.ForeignKey(Auction, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="own_comments")
+    listing = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name="all_comments")
     content = models.TextField()
     def __str__(self):
         return f"user({self.user}) puts a new comment on listing({self.listing})"

@@ -25,8 +25,7 @@ def index(request):
             try:
                 auction = Auction.objects.get(id=auctionId)
                 # Only display active listings
-                if auction.status == 1:
-                    myAuctions.append(auction)
+                myAuctions.append(auction)
             except Auction.DoesNotExist:
                 print(f"No auction with id({auctionId}) exists")
         return render(request, "auctions/index.html", {
@@ -163,11 +162,18 @@ def create(request):
 
 def categories(request):
     categories = Category.objects.all() if Category.objects.all() else None
+    categories
     cates_count = []
     for category in categories:
+        pairs = Auction_Category.objects.filter(category_id=category.id)
+        count = 0
+        for pair in pairs:
+            auction = Auction.objects.get(id=pair.listing_id)
+            if auction.status == 1:
+                count += 1
         cate = {
             "name": category.category,
-            "count": len(Auction_Category.objects.filter(category_id=category.id))
+            "count": count
         }
         cates_count.append(cate)
     return render(request, "auctions/categories.html", {
@@ -190,29 +196,33 @@ def category(request, category):
         "auctions": auctions
     })
 
-def listing(request, id, message=None, owner=None):
+def listing(request, id, message=None, owner=None, comment=None):
     # Two forms handling for POST method
     if request.method == "POST":
+        # When a comment been added
+        if comment:
+            content = request.POST["comment"]
+            auction = Auction.objects.get(id=id)
+            comment = Comment(user=request.user, listing=auction, content=content)
+            comment.save()
+            message = "Comment added"
+            return HttpResponseRedirect(reverse("listing_message", args=(id, message, )))
         # 1. Closing a bid by its owner
         if owner:
             print("Owner closing the bid")
-            # @TODO: Actual closing bid actions
-            user = User.objects.get(id=owner)
-            # 1. Remove the auction from the user's auction list
-            auctions = user.auctions
-            print(auctions)
-            auctions.pop(auctions.index(id))
-            print(auctions)
-            user.auctions = auctions
-            user.save()
-            # 2. Update active status of the auction
+            # 1. Change the auction status to inactive a purchase been made
             auction = Auction.objects.get(id=id)
             auction.status = 0
             auction.save()
-            # # 3. Remove the auction from the bid table
-            # Bid.objects.filter(listing=id).delete()
-            # # 4. Remove the auction from the auction_category table
-            # Auction_Category.objects.filter(listing_id=id).delete()
+            # 2. Put the auction under the user who bought it
+            Bids = Bid.objects.filter(listing=id)
+            highest, buyer.id = 0, None
+            for bid in Bids:
+                if bid.new_bid > highest:
+                    highest, buyer.id = bid.new_bid, bid.user
+            buyer = User.objects.get(id=buyer.id)
+            buyer.auctions.append(id)
+            buyer.save()
             return HttpResponseRedirect(reverse("index"))
         # 2. Placing a new bid / Adding to the watchlist
         else:
@@ -220,7 +230,6 @@ def listing(request, id, message=None, owner=None):
             try:
                 newBid = float(request.POST["newBid"])
                 print(newBid)
-                print(request.POST["bulabula"])
                 # 1. Find the highest bid so far
                 bids = Bid.objects.all().filter(listing=id)
                 if len(bids) > 0:
@@ -252,9 +261,6 @@ def listing(request, id, message=None, owner=None):
             except KeyError:
                 user = request.user
                 watchList = user.watchList
-                # Empty check
-                if watchList[0] == -1:
-                    watchList = []
                 inWatchList = True if id in watchList else False
                 # Remove from watch list
                 if inWatchList:
@@ -279,7 +285,18 @@ def listing(request, id, message=None, owner=None):
         bids = Bid.objects.all().filter(listing=id)
         number_bids = len(bids)
         owner = listing.createdBy
+        if id in user.auctions:
+            # Detect owner
+            if user.id == owner:
+                ownerLogin = True
+                buyerLogin = False
+            # Detect buyer
+            else:
+                ownerLogin = False
+                buyerLogin = True
         category = Category.objects.get(id=Auction_Category.objects.get(listing_id=id).category_id).category
+        bid_message = ""
+        comments = listing.all_comments
         if number_bids > 0:
             highest_bid = max(bids, key=lambda bid: bid.new_bid)
             current_bid_price = highest_bid.new_bid
@@ -295,7 +312,6 @@ def listing(request, id, message=None, owner=None):
         # Current user have added it to watchlist or not
         user = User.objects.get(id=request.user.id)
         inWatchList = True if id in user.watchList else False
-
         # 3. For login uses + owner of the listing (close bid)
         ownerLogin = user if id in user.auctions else None
         return render(request, "auctions/listing.html", {
@@ -308,7 +324,9 @@ def listing(request, id, message=None, owner=None):
             "ownerLogin": ownerLogin,
             "owner": owner,
             "category": category,
-            "inWatchList": inWatchList
+            "inWatchList": inWatchList,
+            "comments": comments,
+            "buyerLogin": buyerLogin
         })
     except Auction.DoesNotExist:
         print(f"Listing with id({id}) is not found.")

@@ -14,6 +14,7 @@ urlpatterns = [
     path("listing/<int:id>", views.listing, name="listing"),
     path("listing/<int:id>/<str:message>", views.listing, name="listing_message"),
     path("listing/<int:id>/<str:message>/<int:owner>", views.listing, name="listing_owner"),
+    path("listing/<int:id>/<str:message>/<int:owner>/<int:comment>", views.listing, name="listing_comment"),
 ]
 
 
