@@ -14,14 +14,19 @@ def index(request):
     try:
         current_user = User.objects.get(id=request.user.id)
         try:
-            auctions = Auction.objects.all()
+            auctions = []
+            for auction in Auction.objects.all():
+                if auction.status == 1:
+                    auctions.append(auction)
         except Auction.DoesNotExist:
             print("No auctions.")
         myAuctions = []
         for auctionId in current_user.auctions:
             try:
                 auction = Auction.objects.get(id=auctionId)
-                myAuctions.append(auction)
+                # Only display active listings
+                if auction.status == 1:
+                    myAuctions.append(auction)
             except Auction.DoesNotExist:
                 print(f"No auction with id({auctionId}) exists")
         return render(request, "auctions/index.html", {
@@ -129,7 +134,7 @@ def create(request):
         # Check for missing value
         if title and start_bid and description and image_url and time:
             # Create auction listing
-            auction = Auction(title=title, description=description, start_bid=start_bid, image=image_url, createdAt=time, createdBy=request.user)
+            auction = Auction(title=title, description=description, start_bid=start_bid, image=image_url, createdAt=time, createdBy=request.user, status=1)
             # 1. Save it to the auction table
             auction.save()
             # 2. Update user record
@@ -200,12 +205,14 @@ def listing(request, id, message=None, owner=None):
             print(auctions)
             user.auctions = auctions
             user.save()
-            # 2. Remove the auction from the Auction table
-            Auction.objects.filter(id=id).delete()
-            # 3. Remove the auction from the bid table
-            Bid.objects.filter(listing=id).delete()
-            # 4. Remove the auction from the auction_category table
-            Auction_Category.objects.filter(listing_id=id).delete()
+            # 2. Update active status of the auction
+            auction = Auction.objects.get(id=id)
+            auction.status = 0
+            auction.save()
+            # # 3. Remove the auction from the bid table
+            # Bid.objects.filter(listing=id).delete()
+            # # 4. Remove the auction from the auction_category table
+            # Auction_Category.objects.filter(listing_id=id).delete()
             return HttpResponseRedirect(reverse("index"))
         # 2. Placing a new bid / Adding to the watchlist
         else:
