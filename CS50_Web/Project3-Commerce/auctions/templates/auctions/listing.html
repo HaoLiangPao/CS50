@@ -12,8 +12,11 @@
     <img src="{{ listing.image }}" alt="Listing Image">
     <p>{{ listing.description }}</p>
     <h3>$ {{ current_bid }}</h3>
-    <!-- Only login user can place a bid or close a bid -->
-    {% if login %}
+    {% if buyerLogin%}
+    <div class="alert alert-success" role="alert">
+        Conguaturations! You have bought it!
+    </div>
+    {% else %}
         <p>{{ number_bids }} bid(s) so far. {{ bid_message }}</p>
         <!-- For owner of the listing -->
         {% if ownerLogin %}

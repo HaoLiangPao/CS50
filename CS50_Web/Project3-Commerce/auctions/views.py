@@ -216,13 +216,17 @@ def listing(request, id, message=None, owner=None, comment=None):
             auction.save()
             # 2. Put the auction under the user who bought it
             Bids = Bid.objects.filter(listing=id)
-            highest, buyer.id = 0, None
+            highest, buyer_id = 0, None
             for bid in Bids:
                 if bid.new_bid > highest:
-                    highest, buyer.id = bid.new_bid, bid.user
-            buyer = User.objects.get(id=buyer.id)
+                    highest, buyer_id = bid.new_bid, bid.user
+            buyer = User.objects.get(id=buyer_id)
             buyer.auctions.append(id)
             buyer.save()
+            # 3. Remove the item from the seller's auction list
+            seller = request.user
+            seller.auctions.pop(auctions.index(id))
+            seller.save()
             return HttpResponseRedirect(reverse("index"))
         # 2. Placing a new bid / Adding to the watchlist
         else:
@@ -285,15 +289,17 @@ def listing(request, id, message=None, owner=None, comment=None):
         bids = Bid.objects.all().filter(listing=id)
         number_bids = len(bids)
         owner = listing.createdBy
-        if id in user.auctions:
+        if id in request.user.auctions:
             # Detect owner
-            if user.id == owner:
+            if request.user == owner:
                 ownerLogin = True
                 buyerLogin = False
             # Detect buyer
             else:
                 ownerLogin = False
                 buyerLogin = True
+        else:
+            buyerLogin, ownerLogin = False, False
         category = Category.objects.get(id=Auction_Category.objects.get(listing_id=id).category_id).category
         bid_message = ""
         comments = listing.all_comments
