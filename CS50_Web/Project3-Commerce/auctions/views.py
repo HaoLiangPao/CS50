@@ -225,7 +225,7 @@ def listing(request, id, message=None, owner=None, comment=None):
             buyer.save()
             # 3. Remove the item from the seller's auction list
             seller = request.user
-            seller.auctions.pop(auctions.index(id))
+            seller.auctions.pop(seller.auctions.index(id))
             seller.save()
             return HttpResponseRedirect(reverse("index"))
         # 2. Placing a new bid / Adding to the watchlist
