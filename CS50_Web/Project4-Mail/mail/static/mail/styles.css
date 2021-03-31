@@ -2,14 +2,28 @@ textarea {
     min-height: 400px;
 }
 
+/* All email records */
 #emails {
     list-style-type: none;
     margin: 0;
     padding: 0;
 }
+/* Each email record */
 .email-record {
+    display: flex;
     padding: 7px;
     border: 1px;
     border-color: black;
     border-style: solid;
+}
+/* Columns within each email record */
+.sender {
+    font-weight: bold;
+}
+.subject {
+    padding-left: 20px;
+    flex-grow: 2;
+}
+.timestamp {
+    color: grey;
 }

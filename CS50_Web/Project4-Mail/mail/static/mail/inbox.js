@@ -91,9 +91,6 @@ function load_mailbox(mailbox, message=null) {
 
         // When no emails exist
         emails_element = document.querySelector('#emails')
-        console.log(emails_element);
-        console.log(emails.length);
-        console.log(emails.length == 0);
         if (emails.length == 0) {
             emails_element.style.display = 'none'
         } else {
@@ -107,10 +104,13 @@ function load_mailbox(mailbox, message=null) {
                 let record = document.createElement('div')
     
                 let sender = document.createElement('div')
+                sender.classList.add('sender')
                 sender.appendChild(document.createTextNode(email.sender))
                 let subject = document.createElement('div')
+                subject.classList.add('subject')
                 subject.appendChild(document.createTextNode(email.subject))
                 let timestamp = document.createElement('div')
+                timestamp.classList.add('timestamp')
                 timestamp.appendChild(document.createTextNode(email.timestamp))
     
                 // Make up single record
