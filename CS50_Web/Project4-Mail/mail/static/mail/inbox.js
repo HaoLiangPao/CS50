@@ -63,7 +63,7 @@ function sent_email(event) {
 
 function load_mailbox(mailbox, message=null) {
   
-  // Show the mailbox and hide other views
+  // 1. Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
 
@@ -78,7 +78,52 @@ function load_mailbox(mailbox, message=null) {
     alertMessage.style.display = 'none';
   }
 
-
-  // Show the mailbox name
+  // 2. Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+
+  // 3. Show records of emails
+  // 3.1 Make API calls
+  fetch(`/emails/${mailbox}`)
+    .then(response => response.json())
+    .then(emails => {
+        // Print emails
+        console.log(emails);
+
+        // When no emails exist
+        emails_element = document.querySelector('#emails')
+        console.log(emails_element);
+        console.log(emails.length);
+        console.log(emails.length == 0);
+        if (emails.length == 0) {
+            emails_element.style.display = 'none'
+        } else {
+            emails_element.style.display = 'block'
+            // Email records found
+            for (email of emails) {
+    
+                // Record row (to be added in record table)
+                let record_row = document.createElement("li")
+                // Single record div (contains three text node of information)
+                let record = document.createElement('div')
+    
+                let sender = document.createElement('div')
+                sender.appendChild(document.createTextNode(email.sender))
+                let subject = document.createElement('div')
+                subject.appendChild(document.createTextNode(email.subject))
+                let timestamp = document.createElement('div')
+                timestamp.appendChild(document.createTextNode(email.timestamp))
+    
+                // Make up single record
+                record.appendChild(sender)
+                record.appendChild(subject)
+                record.appendChild(timestamp)
+                record.classList.add('email-record')
+                // Make up the record row
+                record_row.appendChild(record)
+                // Add the record into the email table
+                emails_element.appendChild(record_row)
+            }
+        }
+
+    });
 }
