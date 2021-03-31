@@ -26,15 +26,10 @@ function compose_email() {
 }
 
 function sent_email(event) {
-    console.log(event)
     // Get user input
     recipients = document.querySelector('#compose-recipients').value
     subject = document.querySelector('#compose-subject').value
     body = document.querySelector('#compose-body').value
-
-    console.log(recipients);
-    console.log(subject);
-    console.log(body);
 
     // Make API calls, sending emails through the back end
     fetch('/emails', {
@@ -47,20 +42,19 @@ function sent_email(event) {
       })
       .then(response => response.json() )
       .then(result => {
-        console.log(result.status);
         // If error happens
         if (result.error) {
             // Display error message
             alertMessage = document.querySelector('#message')
             alertMessage.classList.add('alert-danger')
-            alertMessage.innerHTML += result.error
+            alertMessage.innerHTML = result.error
             alertMessage.style.display = 'block'
         } else {
             // Email been sent successfully, redirect to sent page
             load_mailbox('sent', message=result.message)
         }
         // Print result
-        console.log(result);
+        // console.log(result);
       });
 
     // Prevent default submit behaviour
@@ -78,7 +72,7 @@ function load_mailbox(mailbox, message=null) {
   if (message) {
       // Display success message
     alertMessage.classList.add('alert-success')
-    alertMessage.innerHTML += result.message
+    alertMessage.innerHTML = result.message
     alertMessage.style.display = 'block'
   } else {
     alertMessage.style.display = 'none';
