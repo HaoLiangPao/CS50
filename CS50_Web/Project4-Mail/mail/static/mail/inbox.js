@@ -66,6 +66,7 @@ function load_mailbox(mailbox, message=null) {
   // 1. Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#email-container').style.display = 'none';
 
   // Show/Not show alert message (when redirecting from other 'pages')
   alertMessage = document.querySelector('#message');
@@ -82,7 +83,7 @@ function load_mailbox(mailbox, message=null) {
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
   // 3. Show records of emails
-  // 3.1 Make API calls
+  // 3.1 Make API calls (Fetch all emails from the given mail box)
   fetch(`/emails/${mailbox}`)
     .then(response => response.json())
     .then(emails => {
@@ -104,7 +105,7 @@ function load_mailbox(mailbox, message=null) {
                 let record = document.createElement('div')
     
                 let sender = document.createElement('div')
-                sender.classList.add('sender')
+                sender.classList.add('title')
                 sender.appendChild(document.createTextNode(email.sender))
                 let subject = document.createElement('div')
                 subject.classList.add('subject')
@@ -112,12 +113,21 @@ function load_mailbox(mailbox, message=null) {
                 let timestamp = document.createElement('div')
                 timestamp.classList.add('timestamp')
                 timestamp.appendChild(document.createTextNode(email.timestamp))
+
+                // Differenciate read/unread emails
+                if (email.read) {
+                    record.classList.add('read')
+                } else {
+                    record.classList.add('unread')
+                }
     
                 // Make up single record
                 record.appendChild(sender)
                 record.appendChild(subject)
                 record.appendChild(timestamp)
                 record.classList.add('email-record')
+                // When a email record is been clicked
+                record.addEventListener('click', () => email_detail(email));
                 // Make up the record row
                 record_row.appendChild(record)
                 // Add the record into the email table
@@ -126,4 +136,32 @@ function load_mailbox(mailbox, message=null) {
         }
 
     });
+
+}
+
+function email_detail(email) {
+    console.log('This element has been clicked!')
+    // 1. Create a email detail element
+    let email_element = document.createElement('div');
+    // 2. Change the content of the email-container to the email just created
+    const {sender, recipients, subject, timestamp, body} = email
+    document.querySelector('#from_value').innerHTML = sender
+    document.querySelector('#to_value').innerHTML = recipients
+    document.querySelector('#subject_value').innerHTML = subject
+    document.querySelector('#timestamp_value').innerHTML = timestamp
+    document.querySelector('#email-content').innerHTML = body
+
+    // 3. Show the email-container, unshow the mail box views
+    document.querySelector('#emails-view').style.display = 'none';
+    document.querySelector('#emails').style.display = 'none';
+    document.querySelector('#compose-view').style.display = 'none';
+    document.querySelector('#email-container').style.display = 'block';
+
+    // 4. Mark the email as read in the database
+    fetch('/emails/100', {
+        method: 'PUT',
+        body: JSON.stringify({
+            read: true
+        })
+      })
 }

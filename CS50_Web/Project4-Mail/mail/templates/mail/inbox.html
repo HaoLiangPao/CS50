@@ -37,6 +37,31 @@
             <input type="submit" class="btn btn-primary"/>
         </form>
     </div>
+
+    <!-- Email detail page -->
+    <div id="email-container">
+        <ul id="email-detail-titles">
+            <li id="from_detail" class="title-list">
+                <div class="title">From:</div>
+                <div id="from_value"></div>
+            </li>
+            <li id="to_detail" class="title-list">
+                <div class="title">To:</div>
+                <div id="to_value"></div>
+            </li>
+            <li id="subject_detail" class="title-list">
+                <div class="title">Subject:</div>
+                <div id="subject_value"></div>
+            </li>
+            <li id="timestamp_detail" class="title-list">
+                <div class="title">Timestamp:</div>
+                <div id="timestamp_value"></div>
+            </li>
+        </ul>
+        <button id="reply" class="btn btn-sm btn-outline-primary">Reply</button>
+        <hr>
+        <div id="email-content"></div>
+    </div>
 {% endblock %}
 
 {% block script %}

@@ -16,8 +16,14 @@ textarea {
     border-color: black;
     border-style: solid;
 }
+.read {
+    background-color: #eee;
+}
+.unread {
+    background-color: #fff;
+}
 /* Columns within each email record */
-.sender {
+.title {
     font-weight: bold;
 }
 .subject {
@@ -26,4 +32,14 @@ textarea {
 }
 .timestamp {
     color: grey;
+}
+
+/* Email details */
+#email-detail-titles {
+    list-style: none;
+    padding-left: 0;
+}
+
+.title-list {
+    display: flex;
 }
