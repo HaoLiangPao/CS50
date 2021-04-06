@@ -25,6 +25,8 @@ function compose_email() {
 }
 
 function sent_email(event) {
+    console.log("email is sending through");
+
     // Get user input
     recipients = document.querySelector('#compose-recipients').value
     subject = document.querySelector('#compose-subject').value
@@ -53,7 +55,7 @@ function sent_email(event) {
             load_mailbox('sent', message=result.message)
         }
         // Print result
-        // console.log(result);
+        console.log(result);
       });
 
     // Prevent default submit behaviour
@@ -99,6 +101,25 @@ email_detail = function(email) {
         } else {
             archive_button.innerHTML = "Archive"
         }
+
+        // 4. Add feature to reply button
+        reply_button = document.querySelector('#reply')
+        reply_button.addEventListener('click', function reply_email() {
+            this.removeEventListener('click', reply_email)
+            // 1. Switch to compose page
+            compose_email()
+            // 2. Prefill some fields
+            // 2.1 Sender
+            document.querySelector('#compose-recipients').value = sender;
+            // 2.2 Subtitle 
+            if (subject.slice(0,4) == 'Re: ') {
+                document.querySelector('#compose-subject').value = subject;
+            } else {
+                document.querySelector('#compose-subject').value = 'Re: ' + subject;
+            }
+            // 2.3 Email body
+            document.querySelector('#compose-body').value = '\n\nOn ' + timestamp + ' ' + sender + ' wrote:\n' + body;
+        }, false)
     
         // 5. Mark the email as read in the database
         fetch(`/emails/${email.id}`, {
@@ -199,7 +220,7 @@ function clear_page(title, block_remains, message=null) {
     if (message) {
         // Display success message
         alertMessage.classList.add('alert-success')
-        alertMessage.innerHTML = result.message
+        alertMessage.innerHTML = message
         alertMessage.style.display = 'block'
     } else {
         alertMessage.style.display = 'none';
