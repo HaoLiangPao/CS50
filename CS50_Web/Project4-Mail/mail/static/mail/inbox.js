@@ -63,28 +63,20 @@ function sent_email(event) {
 toggle_archive = function(id, event) {
     console.log(`id is ${id}`);
 
-    // Change frontend display when success
-    archive_button = document.querySelector('#archive')
-    // console.log(archive_button.value);
-    console.log(archive_button.innerHTML);
-    if (archive_button.innerHTML == 'Unarchive') {
-        archive_button.innerHTML = 'Archive'
-    } else {
-        archive_button.innerHTML = 'Unarchive'
-    }
-
     // Get current status of the email
     fetch(`/emails/${id}`)
         .then(response => response.json())
         .then(email => {
             console.log(email)
-            // Change the archive status based on the current status
+            // 1. Change the archive status based on the current status
             fetch(`/emails/${email.id}`, {
                 method: 'PUT',
                 body: JSON.stringify({
                     archived: !email.archived
                 })
               })
+            // 2. Load the inbox page
+            load_mailbox('inbox')
         })
 }
 
