@@ -60,26 +60,6 @@ function sent_email(event) {
     event.preventDefault()
 }
 
-toggle_archive = function(id, event) {
-    console.log(`id is ${id}`);
-
-    // Get current status of the email
-    fetch(`/emails/${id}`)
-        .then(response => response.json())
-        .then(email => {
-            console.log(email)
-            // 1. Change the archive status based on the current status
-            fetch(`/emails/${email.id}`, {
-                method: 'PUT',
-                body: JSON.stringify({
-                    archived: !email.archived
-                })
-              })
-            // 2. Load the inbox page
-            load_mailbox('inbox')
-        })
-}
-
 // toggle_reply = function(event, )
 
 email_detail = function(email) {
@@ -102,8 +82,18 @@ email_detail = function(email) {
     
         // 3. Change the button to archive/unarchive
         archive_button = document.querySelector('#archive')
-        console.log(email.id);
-        archive_button.addEventListener('click', toggle_archive.bind(event, email.id), false)
+        archive_button.addEventListener('click', function toggle_archive() {
+            this.removeEventListener('click', toggle_archive)
+            // 1. Change the archive status based on the current status
+            fetch(`/emails/${email.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    archived: !email.archived
+                })
+            })
+            // 2. Load the inbox page
+            load_mailbox('inbox')
+        }, false)
         if (email.archived) {
             archive_button.innerHTML = "Unarchive"
         } else {
@@ -197,9 +187,8 @@ function clear_page(title, block_remains, message=null) {
 
     // @TO-DO: removeEventLisenter for archive and reply (function been bind to eventlisenters)
     // 2. Remove eventlisteners
-    document.querySelector('#archive').removeEventListener('click', toggle_archive, false)
+    // document.querySelector('#archive').removeEventListener('click', toggle_archive, false)
     // document.querySelector('#reply').removeEventListener('click', toggle_archive_handler, false)
-    console.log("Clearing page: removing toggle_archive eventListener...");
 
     // 3. Show the page title
     document.querySelector('#emails-view').innerHTML = `<h3>${title.charAt(0).toUpperCase() + title.slice(1)}</h3>`;
