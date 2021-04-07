@@ -110,6 +110,8 @@ class Sentence():
         # Can only garentee mines when all cells in the set are mines
         if len(self.cells) == self.count:
             return self.cells
+        else:
+            return set()
 
     def known_safes(self):
         """
@@ -118,6 +120,8 @@ class Sentence():
         # Can only garentee safe cells when the count is 0
         if self.count == 0:
             return self.cells
+        else:
+            return set()
 
     def mark_mine(self, cell):
         """
@@ -139,7 +143,6 @@ class Sentence():
         if cell in self.cells:
             # Update the sentence based on this cell is been tested to be safe
             self.cells.remove(cell)
-
 
 class MinesweeperAI():
     """
@@ -195,94 +198,81 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
-        # Mark the cell as a move that has been made
+        # 1) Mark the cell as a move that has been made
         self.moves_made.add(cell)
-        # 1. Mark the cell as safe
-        # 2. Update existing knowledge the current cell is safe
+
+        # 2) Mark the cell as safe
         self.mark_safe(cell)
-        # Add a new sentence to the AI's KB based on the value of `cell` and `count`\
+
+        # 3) Add a new sentence to the AI's KB based on the value of `cell` and `count`
         inference = set()
         c_row, c_column = cell
-        # Add all nearby cells into the inference
+        # 1. Add all nearby cells into the inference
         for row in range(c_row - 1, c_row + 2):
-            # Not exceeding the game board limit
-            if 0 <= row <= self.height - 1:
-                for column in range(c_column - 1, c_column + 2):
-                    # Not exceeding the game board limit
-                    if 0 <= column <= self.width - 1:
-                        neighbor = (row, column)
-                        # Only add undetermined cells
-                        if neighbor not in self.moves_made:
-                            inference.add(neighbor)
-        # Add the inference with the number of mines into a sentence
+            for column in range(c_column - 1, c_column + 2):
+                # Not exceeding the game board limit
+                if 0 <= column <= self.width - 1 and 0 <= row <= self.height - 1:
+                    neighbor = (row, column)
+                    if neighbor != cell:
+                        inference.add(neighbor)
+        # 2. Add the inference with the number of mines into a sentence
         new_knowledge = Sentence(inference, count)
-        self.knowledge.append(new_knowledge)
-        # Mark any additional cells as safe or as mines if it can be concluded based on the AI's knowledge base
 
-        # print(f"Moves made are: {self.moves_made}")
-        # print(f"knowledge base is: {self.knowledge}")
-        # Temperary storage for used knowledges
-        used_knowledge = []
-        for knowledge_base in self.knowledge:
-            # Check if there are any conclusions can be made already
-            know_mines = knowledge_base.known_mines()
-            know_safes = knowledge_base.known_safes()
-            # print(f"Know safes are {know_safes}")
-            # print(f"Know mines are {know_mines}")
-            if know_mines:
-                # Copy the set since the original return result may be changed by mark functions
-                know_mines = know_mines.copy()
-                for cell in know_mines:
-                    # print(f"Cell {cell} is a mine")
-                    self.mark_mine(cell)
-                used_knowledge.append(knowledge_base)
-                # print(f"used knowledge mine: {knowledge_base.cells}={knowledge_base.count}")
-            if know_safes:
-                # Copy the set since the original return result may be changed by mark functions
-                know_safes = know_safes.copy()
-                for cell in know_safes:
-                    # print(f"Cell {cell} is safe")
-                    self.mark_safe(cell)
-                used_knowledge.append(knowledge_base)
-                # print(f"used knowledge mine: {knowledge_base.cells}={knowledge_base.count}")
-            # # If the set is empty, also remove it from the knowledge base
-            # if len(knowledge_base.cells) == 0:
-            #     used_knowledge.append(knowledge_base)
-        # Remove the knowledge since it is already applied on other exisitng knowleges 
-        # print(f"used knowledge: {len(used_knowledge)}")
-        for knowledge in used_knowledge:
-            # print(f"(before) knowledge is {len(self.knowledge)}")
-            self.knowledge.remove(knowledge)
-            # print(f"(after) knowledge is {len(self.knowledge)}")
-        current_knowledge = self.knowledge.copy()
-        for knowledge_base in current_knowledge:
-            # Add any new sentences to the AI's knowledge base if they can be inferred from existing knowledge
-            kb_cells, new_cells = knowledge_base.cells, new_knowledge.cells
-            kb_count, new_count = knowledge_base.count, new_knowledge.count
-            different_cells = set()
-            # Check if one inference is a subset of the other
-            if kb_cells.issubset(new_cells):
-                # new_cells is bigger, what ever left in new_cells except the overlap can be drived into a new sentence
-                different_cells = new_cells.difference(kb_cells)
-                different_count = new_count - kb_count
-            elif new_cells.issubset(kb_cells):
-                # Similar idea, but this time knowledge_base is bigger
-                different_cells = kb_cells.difference(new_cells)
-                different_count = kb_count - new_count
-            # If there are new knowledge to be added
-                # Only add non-existing knowledge
-            if different_cells and not self.check_duplicate_knowledge(different_cells):
-                derived_knowledge = Sentence(different_cells, different_count)
-                # print(f"knowledge not existing, adding new knowlege {different_cells}, {different_count}")
-                # Changing the iterative while iterating it? could it be a flau?
-                self.knowledge.append(derived_knowledge) 
-        # print(f"new_knowledge is {new_knowledge.cells}={new_knowledge.count}")
-        # print(f"Knowledge base is: {len(self.knowledge)}")
-        # for knowledge_base in self.knowledge:
-            # print(knowledge_base)
-        # print("\n")
-    
-    
+        # print(new_knowledge)
+        for mine in self.mines:
+            new_knowledge.mark_mine(mine)
+        for safe in self.safes:
+            new_knowledge.mark_safe(safe)
+
+        self.knowledge.append(new_knowledge)
+
+        # 4) mark any additional cells as safe or as mines if it can be concluded based on the AI's knowledge base
+        new_mines, new_safes = set(), set()
+        # AI's knowledge base now have new inferences been added after the previous move is made, so we should check if now conclusions can be made
+        for knowledge in self.knowledge:
+            for mine in knowledge.known_mines():
+                new_mines.add(mine)
+            for safe in knowledge.known_safes():
+                new_safes.add(safe)
+        # Can not change the set at iteration runtime
+        for mine in new_mines:
+            self.mark_mine(mine)
+        for safe in new_safes:
+            self.mark_safe(safe)
+        # Knowledge will only be removed when it is empty but not after it is been used. Where mark safe, make mine can do it
+
+        # 5) add any new sentences to the AI's knowledge base if they can be inferred from existing knowledge
+        derived_knowledges = []
+        # 1. Compare every two knowledge, check if they are subsites, find the part overlap and the part doesnt
+        # new knowledge can be drawn not only between every old knowledge and the new knowledge, but also between any two old knowledges (since they could be changed by a new move been made)
+        for knowledgeA, knowledgeB in itertools.combinations(self.knowledge, 2):
+            A_cells, B_cells = knowledgeA.cells, knowledgeB.cells
+            A_count, B_count = knowledgeA.count, knowledgeB.count
+            # Only subset can drived a knowledge which is true for sure, if some overlaps with two different parts on each side will not able to give a certain knowledge
+            if A_cells.issubset(B_cells):
+                new_sentence = Sentence(B_cells - A_cells, B_count - A_count)
+            elif B_cells.issubset(A_cells):
+                new_sentence = Sentence(A_cells - B_cells, A_count - B_count)
+            else:
+                new_sentence = None
+            # 2. Add the new knowledge to the base (only when the new knowledge is not duplicate or empty)
+            if new_sentence is not None and new_sentence not in self.knowledge:
+                derived_knowledges.append(new_sentence)
+        # Can not change the knowledge on the for iteration runtime
+        self.knowledge.extend(derived_knowledges)
+        # 3. Clean empty sentences so the knowledge base will not be occupied with empty lists
+        for knowledge in self.knowledge:
+            if knowledge == Sentence(set(), 0):
+                self.knowledge.remove(knowledge)
+        # print("derived knowledge is: ")
+        # for k in derived_knowledges:
+        #     print(f"  {k.cells}")
+        #     print(f"  {k.count}")
+        # print("knowledge base is: ")
+        # for k in self.knowledge:
+        #     print(f"  {k.cells}")
+        #     print(f"  {k.count}")
+
     def check_duplicate_knowledge(self, cells):
         for base in self.knowledge:
             if cells == base.cells:
@@ -298,13 +288,13 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-        for row in range(self.height):
-            for column in range(self.width):
-                move = (row, column)
-                if (move not in self.moves_made) and (move not in self.mines) and (move in self.safes):
-                    # print(f"Save move been took: {move}")
-                    return move
-        return None
+        # Not choosing from left top corner, choose from the known safes
+        safe_moves = self.safes - self.moves_made
+        # Randomly pick a safe cell if there exists, otherwise, return none
+        if safe_moves:
+            return random.choice(tuple(safe_moves))
+        else:
+            return None
 
     def make_random_move(self):
         """
@@ -313,10 +303,11 @@ class MinesweeperAI():
             1) have not already been chosen, and
             2) are not known to be mines
         """
-        for row in range(self.height):
-            for column in range(self.width):
-                move = (row, column)
-                if move not in self.moves_made and move not in self.mines:
-                    # print(f"Random move been took: {move}")
-                    return move
-        return None
+        # Original implementation is not completely random
+        possible_moves = set(itertools.product(range(0, self.height), range(0, self.width)))
+        moves_left = possible_moves - self.mines - self.moves_made - self.safes
+        # Randomly pick a safe cell if there exists, otherwise, return none
+        if moves_left:
+            return random.choice(tuple(moves_left))
+        else:
+            return None
