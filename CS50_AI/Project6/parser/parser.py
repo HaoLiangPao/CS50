@@ -88,7 +88,6 @@ def np_chunk(tree):
     """
     result = []
     stack = [tree]
-    NP_chunk = []
     # Loop through all tree nodes
     while stack:
         tree_node = stack.pop()
