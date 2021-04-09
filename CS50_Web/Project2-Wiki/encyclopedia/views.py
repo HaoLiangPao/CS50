@@ -79,6 +79,7 @@ def edit(request, title):
         return HttpResponseRedirect(reverse("entry", args=(title,)))
     print(title)
     entry = util.get_entry(title).strip()
+    f
     # Default info page
     return render(request, "encyclopedia/editEntry.html",{
         "title": title,
