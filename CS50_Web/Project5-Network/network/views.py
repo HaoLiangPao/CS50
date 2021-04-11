@@ -36,6 +36,12 @@ def logout_view(request):
     return HttpResponseRedirect(reverse("index"))
 
 
+def new_post(request):
+    if request.method == "POST":
+        # Get user input
+        content = request.POST["content"]
+        user = 
+
 def register(request):
     if request.method == "POST":
         username = request.POST["username"]
