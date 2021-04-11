@@ -1,5 +1,29 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    TODO
+    <h2>All Posts</h2>
+
+    {% if message %}
+        <div>{{ message }}</div>
+    {% endif %}
+
+    <form action="{% url 'newPost' %}" method="post">
+        {% csrf_token %}
+        <label for="tweet">New Post</label>
+        <div class="form-group">
+            <input class="form-control" autofocus type="text" name="tweet" placeholder="New tweet...">
+        </div>
+        <input class="btn btn-primary" type="submit" value="Post">
+    </form>
+
+    <div id="all-posts">
+        <h3>User Name</h3>
+        <button id="edit" class="btn btn-sm btn-primary">Edit</button>
+        <div class="tweet-content">Hello!</div>
+        <div class="tweet-timestamp">March 29, 2020, 11:40 p.m.</div>
+        <div class="tweet-like">heart 1</div>
+        <button id="comment" class="btn btn-sm btn-primary">Comment</button>
+    </div>
+
+    Already have an account? <a href="{% url 'login' %}">Log In here.</a>
 {% endblock %}
