@@ -50,6 +50,26 @@ def profile(request, username):
     })
 
 
+def follow(request, username):
+    if request.method == "PUT":
+        # Get user to be followed
+        targetUser = User.objects.get(username=username)
+        # Follow user
+        request.user.following.add(targetUser)
+        return HttpResponseRedirect(reverse("profile", args=(username)))
+    return HttpResponseRedirect(reverse("index"))
+
+
+def unfollow(request, username):
+    if request.method == "POST":
+        # Get user to be followed
+        targetUser = User.objects.get(username=username)
+        # Follow user
+        request.user.following.remove(targetUser)
+        return HttpResponseRedirect(reverse(profile, args=(username)))
+    return HttpResponseRedirect(reverse("index"))
+
+
 def login_view(request):
     if request.method == "POST":
 

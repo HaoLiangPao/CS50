@@ -1,14 +1,23 @@
 {% extends "network/layout.html" %}
+{% load static %}
 
 {% block body %}
-    <h2 class="title" >{{username}}</h2>
+    <h2 class="title" id="username">{{username}}</h2>
 
     {% if message %}
         <div>{{ message }}</div>
     {% endif %}
 
-    <h5>Following: {{following}}</h5>
-    <h5>Followers: {{followers}}</h5>
+    <h5 class="title">Following: {{following}}</h5>
+    <h5 class="title">Followers: {{followers}}</h5>
+
+    {% if not sameUser %}
+        {% if allow_follow %}
+            <button class="btn btn-primary" id="follow">follow</button>
+        {% else %}
+            <button class="btn btn-primary" id="unfollow">unfollow</button>
+        {% endif %}
+    {% endif %}
 
     {% for post in posts %}
         <div id="all-posts" class="post-container">
