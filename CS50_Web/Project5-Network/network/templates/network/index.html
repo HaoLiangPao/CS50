@@ -1,29 +1,27 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    <h2>All Posts</h2>
+    <h2 class="title" >All Posts</h2>
 
     {% if message %}
         <div>{{ message }}</div>
     {% endif %}
 
-    <form action="{% url 'newPost' %}" method="post">
+    <form action="{% url 'newPost' %}" method="post" class="post-container" name="tweet_create">
         {% csrf_token %}
-        <label for="tweet">New Post</label>
+        <h4>New Post</h4>
         <div class="form-group">
-            <input class="form-control" autofocus type="text" name="tweet" placeholder="New tweet...">
+            <textarea form="tweet_create" class="form-control" autofocus type="text" name="tweet" placeholder="New tweet..." id="" cols="15" rows="5"></textarea>
         </div>
         <input class="btn btn-primary" type="submit" value="Post">
     </form>
 
-    <div id="all-posts">
-        <h3>User Name</h3>
-        <button id="edit" class="btn btn-sm btn-primary">Edit</button>
+    <div id="all-posts" class="post-container">
+        <h4>User Name</h4>
+        <p class="text-primary">Edit</p>
         <div class="tweet-content">Hello!</div>
-        <div class="tweet-timestamp">March 29, 2020, 11:40 p.m.</div>
+        <div class="tweet-timestamp" class="text-secondary">March 29, 2020, 11:40 p.m.</div>
         <div class="tweet-like">heart 1</div>
-        <button id="comment" class="btn btn-sm btn-primary">Comment</button>
+        <p class="text-secondary">Comment</p>
     </div>
-
-    Already have an account? <a href="{% url 'login' %}">Log In here.</a>
 {% endblock %}

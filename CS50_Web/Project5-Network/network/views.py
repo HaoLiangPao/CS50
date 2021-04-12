@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User
+from .models import User, Tweet, Comment
 
 
 def index(request):
@@ -40,7 +40,12 @@ def new_post(request):
     if request.method == "POST":
         # Get user input
         content = request.POST["content"]
-        user = 
+        # Save the post (with default timestamp and 0 likes)
+        tweet = Tweet(request.user, bontent, 0)
+        tweet.save()
+        # Success message
+        message = "Tweet successfully posted!"
+        return HttpResponseRedirect(reverse("index"))
 
 def register(request):
     if request.method == "POST":
