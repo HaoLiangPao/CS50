@@ -14,12 +14,15 @@
         <input class="btn btn-primary" type="submit" value="Post">
     </form>
 
-    <div id="all-posts" class="post-container">
-        <h4>User Name</h4>
-        <p class="text-primary">Edit</p>
-        <div class="tweet-content">Hello!</div>
-        <div class="tweet-timestamp" class="text-secondary">March 29, 2020, 11:40 p.m.</div>
-        <div class="tweet-like">heart 1</div>
-        <p class="text-secondary">Comment</p>
-    </div>
+    {% for post in posts %}
+        <div id="all-posts" class="post-container">
+            <h4>{{post.user.username}}</h4>
+            <p class="text-primary">Edit</p>
+            <div class="tweet-content">{{post.body}}</div>
+            <div class="tweet-timestamp" class="text-secondary">{{post.timestamp}}</div>
+            <div class="tweet-like">heart {{post.likes}}</div>
+            <p class="text-secondary">Comment</p>
+        </div>
+    {% endfor %}
+
 {% endblock %}

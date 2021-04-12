@@ -8,7 +8,16 @@ from .models import User, Tweet, Comment
 
 
 def index(request):
-    return render(request, "network/index.html")
+    # Fetch all posts from database
+    posts = list(Tweet.objects.all())
+    # Order by timestamp (increasing)
+    def get_timestamp(post):
+        post.timestamp = post.timestamp.strftime("%b %d %Y, %I:%M %p")
+        return post.timestamp
+    posts.sort(key=get_timestamp)
+    return render(request, "network/index.html", {
+        "posts": posts
+    })
 
 
 def login_view(request):
