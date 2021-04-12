@@ -20,17 +20,33 @@ def index(request):
     })
 
 
-def profile(request):
+def profile(request, username):
+    # Check if current user is the user whose profile been accessed
+    profile_user = User.objects.get(username=username)
+    if profile_user != request.user:
+        sameUser = False
+        # Check if the logged in user already follow the profile user
+        following = request.user.following.all()
+        if profile_user in following:
+            allow_follow = True
+        else:
+            allow_follow = False
+    else:
+        sameUser = True
+        allow_follow = False
     # Number of followers and user followings
     followers = len(request.user.following.all())
     following = len(request.user.follower.all())
     # All posts created by this user
     posts = Tweet.objects.filter(user=request.user)
+    
     return render(request, "network/profile.html", {
         "username": request.user.username,
         "following": following,
         "followers": followers,
-        "posts": posts
+        "posts": posts,
+        "allowFollow": allow_follow,
+        "sameUser": sameUser
     })
 
 
