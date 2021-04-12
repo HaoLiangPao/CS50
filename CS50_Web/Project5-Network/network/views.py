@@ -20,6 +20,20 @@ def index(request):
     })
 
 
+def profile(request):
+    # Number of followers and user followings
+    followers = len(request.user.following.all())
+    following = len(request.user.follower.all())
+    # All posts created by this user
+    posts = Tweet.objects.filter(user=request.user)
+    return render(request, "network/profile.html", {
+        "username": request.user.username,
+        "following": following,
+        "followers": followers,
+        "posts": posts
+    })
+
+
 def login_view(request):
     if request.method == "POST":
 

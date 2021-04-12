@@ -1,0 +1,24 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <h2 class="title" >{{username}}</h2>
+
+    {% if message %}
+        <div>{{ message }}</div>
+    {% endif %}
+
+    <h5>Following: {{following}}</h5>
+    <h5>Followers: {{followers}}</h5>
+
+    {% for post in posts %}
+        <div id="all-posts" class="post-container">
+            <h4>{{post.user.username}}</h4>
+            <p class="text-primary">Edit</p>
+            <div class="tweet-content">{{post.body}}</div>
+            <div class="tweet-timestamp" class="text-secondary">{{post.timestamp}}</div>
+            <div class="tweet-like">heart {{post.likes}}</div>
+            <p class="text-secondary">Comment</p>
+        </div>
+    {% endfor %}
+
+{% endblock %}
