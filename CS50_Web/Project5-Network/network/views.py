@@ -41,7 +41,8 @@ def new_post(request):
         # Get user input
         content = request.POST["content"]
         # Save the post (with default timestamp and 0 likes)
-        tweet = Tweet(request.user, bontent, 0)
+        print(request.user)
+        tweet = Tweet(user=request.user, body=content, likes=0)
         tweet.save()
         # Success message
         message = "Tweet successfully posted!"

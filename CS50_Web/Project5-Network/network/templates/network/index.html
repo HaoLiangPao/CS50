@@ -10,9 +10,7 @@
     <form action="{% url 'newPost' %}" method="post" class="post-container" name="tweet_create">
         {% csrf_token %}
         <h4>New Post</h4>
-        <div class="form-group">
-            <textarea form="tweet_create" class="form-control" autofocus type="text" name="tweet" placeholder="New tweet..." id="" cols="15" rows="5"></textarea>
-        </div>
+        <textarea class="form-control" autofocus type="text" placeholder="New tweet..." name="content" cols="15" rows="5"></textarea>
         <input class="btn btn-primary" type="submit" value="Post">
     </form>
 
