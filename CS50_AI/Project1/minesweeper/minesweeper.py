@@ -1,8 +1,6 @@
 import itertools
 import random
 
-from pygame.image import save
-
 
 class Minesweeper():
     """
